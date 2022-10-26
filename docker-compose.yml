@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  server:
+    build: .
+    container_name: api
+    ports:
+      - "8000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - ENV=production
+    volumes:
+      - ./data/gensim:/home/misha/gensim-data
