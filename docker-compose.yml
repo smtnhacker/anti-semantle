@@ -1,13 +1,23 @@
 version: "3.9"
 services:
-  server:
-    build: .
+  api:
+    build: ./server
+    command: ["python3", "-m", "flask", "run"]
     container_name: api
     ports:
-      - "8000:5000"
+      - "5000:5000"
     environment:
       - FLASK_APP=app.py
       - FLASK_RUN_HOST=0.0.0.0
       - ENV=production
-    volumes:
-      - ./data/gensim:/home/misha/gensim-data
+  webserver:
+    build: ./webserver
+    command: ["node", "index.js"]
+    container_name: webserver
+    ports:
+      - "8080:8080"
+  client:
+    build: ./client
+    command: ["serve", "public"]
+    ports:
+      - "3000:3000"

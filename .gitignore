@@ -1,3 +1,6 @@
 env/
 *.pyc
+*pycache*
 env.*
+*.gz
+node_modules

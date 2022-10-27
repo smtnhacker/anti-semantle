@@ -1,19 +1,16 @@
 import os
-from flask import Flask, send_from_directory
+import json
+from flask import Flask, send_from_directory, Response
+from flask_cors import CORS
 import gensim.downloader as api
 
 model = api.load('glove-wiki-gigaword-50')
 app = Flask(__name__)
+CORS(app)
 
 @app.get("/")
 def index():
-    return send_from_directory("static", "index.html")
-
-@app.get("/env.js")
-def env():
-    if os.environ['ENV'] == 'production':
-        return send_from_directory("static", "env.production.js")
-    return send_from_directory("static", "env.development.js")
+    return "<p>Anti-Semantle API server is up!</p>"
 
 @app.route("/api/health_check")
 def health_check():
@@ -21,7 +18,7 @@ def health_check():
 
 @app.route("/api/get_distance=<word1>,<word2>")
 def get_distance(word1, word2):
-    return { "distance": str(model.similarity(word1, word2)) }
+    return Response(json.dumps({ "distance": str(model.similarity(word1, word2)) }), mimetype='application/json')
 
 @app.get("/<path:path>")
 def file(path):
