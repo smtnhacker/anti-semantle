@@ -2,22 +2,29 @@ version: "3.9"
 services:
   api:
     build: ./server
-    command: ["python3", "-m", "flask", "run"]
-    container_name: api
+    command: ["python3", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]
     ports:
-      - "5000:5000"
+      - 5000
     environment:
       - FLASK_APP=app.py
       - FLASK_RUN_HOST=0.0.0.0
       - ENV=production
+  nginx:
+    build: ./nginx
+    ports:
+      - 5000:1337
+    depends_on:
+      - api
   webserver:
     build: ./webserver
     command: ["node", "index.js"]
-    container_name: webserver
     ports:
-      - "8080:8080"
+      - 8080:8080
   client:
     build: ./client
     command: ["serve", "public"]
     ports:
-      - "3000:3000"
+      - 3000:3000
+    depends_on:
+      - webserver
+      - nginx
