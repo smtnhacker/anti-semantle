@@ -48,7 +48,7 @@ class View {
         this.root = document.getElementById('app');
     }
 
-    generateMainMenu() {
+    generateMainMenu(publicRooms) {
         const container = document.createElement('div');
         
         const createBtn = document.createElement('button');
@@ -57,7 +57,7 @@ class View {
 
         const joinBtn = document.createElement('button');
         joinBtn.innerText = "JOIN ROOM";
-        joinBtn.onclick = () => this.generateJoinLobby();
+        joinBtn.onclick = () => this.generateJoinLobby(publicRooms);
 
         container.replaceChildren(
             createBtn,
@@ -87,14 +87,14 @@ class View {
         container.onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('username').value;
-            this.onNewRoom(name);
+            const isPublic = document.getElementById('public').checked;
+            this.onNewRoom(name, isPublic);
         }
 
         this.root.replaceChildren(container)
     }
 
     generateLobby(roomID, players) {
-        console.log("generating lobby...");
         const container = document.createElement('div');
 
         const roomName = document.createElement('h3');
@@ -116,16 +116,17 @@ class View {
         container.replaceChildren(
             roomName,
             playersList,
-            startBtn
+            startBtn,
         );
 
         this.root.replaceChildren(container);
     }
 
-    generateJoinLobby() {
-        const container = document.createElement('form');
+    generateJoinLobby(publicRooms) {
+        const container = document.createElement('div');
+        const form = document.createElement('form');
         
-        container.innerHTML = /* html */`
+        form.innerHTML = /* html */`
             <div class="form-group">
                 <label>Name</label>
                 <input type="text" id="username" name="username" required />
@@ -139,13 +140,33 @@ class View {
             </div>
         `;
 
-        container.onsubmit = (e) => {
+        form.onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('username').value;
             const roomID = document.getElementById('roomID').value;
             this.onJoinRoom(roomID, name);
         }
-
+        
+        const publicContainer = document.createElement('div');
+        const publicHeader = document.createElement('h3');
+        publicHeader.innerText = 'Public Lobbies';
+        
+        const publicList = document.createElement('ul');
+        publicRooms.forEach(roomID => {
+            const item = document.createElement('li');
+            item.innerHTML = /* html */`
+                ${roomID}
+            `;
+            publicList.appendChild(item);
+        });
+        
+        publicContainer.replaceChildren(
+            publicHeader,
+            publicList
+        );
+        
+        container.appendChild(form);
+        container.appendChild(publicContainer);
         this.root.replaceChildren(container);
     }
 
@@ -249,34 +270,36 @@ class MainController {
         this.view = view;
         this.model = model;
 
-        this.view.onNewRoom = (name) => this.createRoom(name);
+        this.view.onNewRoom = (name, isPublic) => this.createRoom(name, isPublic);
         this.view.onJoinRoom = (roomID, name) => this.joinRoom(roomID, name);
         this.view.onStartGame = () => this.startGame();
         this.view.onSubmitWord = (word) =>  this.submitWord(word);
 
-        this.view.generateMainMenu();
+        socket.timeout(3000).emit('get-public-rooms', (err, publicRooms) => {
+            if (err) {
+                this.view.generateMainForm([]);
+            } else {
+                this.view.generateMainMenu(publicRooms);
+            }
+        })
     }
 
-    createRoom(hostName) {
-        console.log("Creating new room...")
+    createRoom(hostName, isPublic) {
         socket.emit('set-username', hostName, () => {
-            socket.emit('create-room', (roomID) => {
+            socket.emit('create-room', isPublic, (roomID) => {
                 this.roomID = roomID;
-                console.log('connected to roomID', roomID);
                 socket.emit('join-room', roomID, () => {});
             })
         });
     }
 
-    refreshLobby(players) {
+    refreshLobby(players, publicRooms) {
         this.numPlayers = players.length
-        console.log("refreshing lobby", players);
-        this.view.generateLobby(this.roomID, players);
+        this.view.generateLobby(this.roomID, players, publicRooms);
     }
 
     joinRoom(roomID, name) {
         this.roomID = roomID;
-        console.log(name, "attempting to join room", roomID);
         socket.emit('set-username', name, () => {
             socket.timeout(3000).emit('join-room', roomID, (err) => {
                 if (err) {
@@ -303,21 +326,16 @@ class MainController {
     }
 }
 
-socket.on('send-message', (message) => {
-    console.log("Server said:", message);
-})
-
 window.onload = async () => {
     await fetch(WEBSERVER_PATH, { credentials: 'include' })
     
     socket.connect()
-    // socket.emit('send-message', "Hello from client!");
 
     const controller = new MainController(
         new View(),
         null
     );
 
-    socket.on('joined-room', players => controller.refreshLobby(players))
+    socket.on('joined-room', (players) => controller.refreshLobby(players))
     socket.on('update-game', (scores, history, players, curPlayer) => controller.refreshGame(scores, history, players, curPlayer))
 }

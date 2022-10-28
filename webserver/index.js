@@ -102,9 +102,14 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('create-room', (cb) => {
-        const roomID = appControl.createRoom();
+    socket.on('create-room', (isPublic, cb) => {
+        const roomID = appControl.createRoom(isPublic);
         cb(roomID);
+    })
+
+    socket.on('get-public-rooms', (cb) => {
+        const publicRooms = appControl.getPublicRooms();
+        cb(publicRooms);
     })
 
     socket.on('start-room', (roomID) => {
@@ -147,7 +152,9 @@ io.on('connection', (socket) => {
                 } else if (state === Room.STATES.IN_GAME) {
                     io.to(roomID).emit('update-game', scores, history, players, curPlayer);
                 }
-                // notify room that player has left
+                socket.leave(roomID);
+                delete req.session.room;
+                req.session.save();
             }
         } catch (err) {
             console.error(err);

@@ -16,9 +16,10 @@ class AppControl {
         return roomID;
     }
 
-    createRoom() {
+    createRoom(isPublic) {
         const roomID = this.createRoomID();
-        this.rooms[roomID] = new Room(roomID);
+        console.log(roomID, "public:", isPublic);
+        this.rooms[roomID] = new Room(roomID, isPublic);
         return roomID;
     }
 
@@ -28,6 +29,17 @@ class AppControl {
         } else {
             throw new Error("Room doesn't exist");
         }
+    }
+
+    getPublicRooms() {
+        const res = [];
+        Object.keys(this.rooms).forEach(roomID => {
+            const room = this.rooms[roomID];
+            if (room.isPublic && room.state === Room.STATES.IN_LOBBY) {
+                res.push(roomID);
+            }
+        });
+        return res;
     }
 
     joinRoom(roomID, person) {

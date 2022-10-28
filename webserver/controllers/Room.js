@@ -66,9 +66,10 @@ class Room {
     }
 
     constructor(
-        id
+        id, isPublic
     ) {
         this.id = id
+        this.isPublic = isPublic
 
         this.state = Room.STATES.IN_LOBBY
         this.curPlayer = -1
