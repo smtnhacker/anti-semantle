@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
                 id: req.sessionID,
                 name: req.session.name
             }
-            const { state, scores, history, players } = appControl.joinRoom(roomID, player);
+            const { state, scores, history, players, curPlayer } = appControl.joinRoom(roomID, player);
             socket.join(roomID);
             req.session.room = roomID;
             req.session.save();
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
             if (state === Room.STATES.IN_LOBBY) {
                 io.to(roomID).emit('joined-room', players);
             } else if (state === Room.STATES.IN_GAME) {
-                io.to(roomID).emit('update-game', scores, history);
+                io.to(roomID).emit('update-game', scores, history, players, curPlayer);
             }
 
             cb();
@@ -110,8 +110,8 @@ io.on('connection', (socket) => {
     socket.on('start-room', (roomID) => {
         try {
             appControl.startRoom(roomID);
-            const { scores, history } = appControl.peekRoom(roomID);
-            io.to(roomID).emit('update-game', scores, history);
+            const { scores, history, players, curPlayer } = appControl.peekRoom(roomID);
+            io.to(roomID).emit('update-game', scores, history, players, curPlayer);
         } catch (err) {
             console.error(err);
         }
@@ -125,8 +125,8 @@ io.on('connection', (socket) => {
         try {
             const res = appControl.submitEntry(roomID, player, word, score);
             if (res) {
-                const { scores, history } = res;
-                io.to(roomID).emit('update-game', scores, history)
+                const { scores, history, players, curPlayer } = res;
+                io.to(roomID).emit('update-game', scores, history, players, curPlayer);
             }
         } catch (err) {
             console.error(err);
@@ -141,10 +141,11 @@ io.on('connection', (socket) => {
         };
         try {
             if (roomID) {
-                const { state, curPlayer } = appControl.leaveRoom(roomID, player);
+                const { state, players, curPlayer, scores, history } = appControl.leaveRoom(roomID, player);
                 if (state === Room.STATES.IN_LOBBY) {
-                    const { players } = appControl.peekRoom(roomID);
                     io.to(roomID).emit('joined-room', players);
+                } else if (state === Room.STATES.IN_GAME) {
+                    io.to(roomID).emit('update-game', scores, history, players, curPlayer);
                 }
                 // notify room that player has left
             }

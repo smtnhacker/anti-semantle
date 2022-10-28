@@ -149,7 +149,7 @@ class View {
         this.root.replaceChildren(container);
     }
 
-    generateGame(scores, history) {
+    generateGame(scores, history, players, curPlayer) {
         // setup UI generators
         const generateScoresDiv = (currentScore) => {
             const container = document.createElement('div');
@@ -160,9 +160,21 @@ class View {
                 const name = currentScore[key].name;
                 const score = currentScore[key].score;
                 const curItem = document.createElement('div');
-                curItem.innerHTML = /* html */ `
-                    ${name}: ${score}
-                `
+
+                if (key === curPlayer.id) {
+                    curItem.innerHTML = /* html */`
+                        <strong>${name}</strong>: ${score}
+                    `
+                } else if (!players.filter(p => p.id === key)[0].active) {
+                    curItem.innerHTML = /* html */`
+                        <span style="color:#999">${name}: ${score}</span>
+                    `
+                } else {
+                    curItem.innerHTML = /* html */ `
+                        ${name}: ${score}
+                    `
+                }
+
                 container.appendChild(curItem);
             });
             return container;     
@@ -278,9 +290,9 @@ class MainController {
         socket.emit('start-room', this.roomID);
     }
 
-    refreshGame(scores, history) {
+    refreshGame(scores, history, players, curPlayer) {
         this.history = history;
-        this.view.generateGame(scores, history);
+        this.view.generateGame(scores, history, players, curPlayer);
     }
 
     submitWord(word) {
@@ -307,5 +319,5 @@ window.onload = async () => {
     );
 
     socket.on('joined-room', players => controller.refreshLobby(players))
-    socket.on('update-game', (scores, history) => controller.refreshGame(scores, history))
+    socket.on('update-game', (scores, history, players, curPlayer) => controller.refreshGame(scores, history, players, curPlayer))
 }
