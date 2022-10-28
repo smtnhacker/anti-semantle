@@ -156,11 +156,12 @@ class View {
             const scoreHeader = document.createElement("h3");
             scoreHeader.innerText = "Scores";
             container.appendChild(scoreHeader);
-            Object.keys(currentScore).forEach(index => {
-                const score = currentScore[index];
+            Object.keys(currentScore).forEach(key => {
+                const name = currentScore[key].name;
+                const score = currentScore[key].score;
                 const curItem = document.createElement('div');
                 curItem.innerHTML = /* html */ `
-                    ${index}: ${score}
+                    ${name}: ${score}
                 `
                 container.appendChild(curItem);
             });
@@ -172,10 +173,10 @@ class View {
             const historyHeader = document.createElement('h3');
             historyHeader.innerText = "History";
             const list = document.createElement('ol');
-            history.forEach(({ player, word, score }) => {
+            history.forEach(({ name, word, score }) => {
                 const curItem = document.createElement('li');
                 curItem.innerHTML = /* html */`
-                    Player ${player}: ${word} (${score})
+                    Player ${name}: ${word} (${score})
                 `
                 list.appendChild(curItem);
             });
@@ -265,7 +266,7 @@ class MainController {
         this.roomID = roomID;
         console.log(name, "attempting to join room", roomID);
         socket.emit('set-username', name, () => {
-            socket.timeout(5000).emit('join-room', roomID, (err) => {
+            socket.timeout(3000).emit('join-room', roomID, (err) => {
                 if (err) {
                     alert('cannot join room');
                 }
@@ -298,7 +299,7 @@ window.onload = async () => {
     await fetch(WEBSERVER_PATH, { credentials: 'include' })
     
     socket.connect()
-    socket.emit('send-message', "Hello from client!");
+    // socket.emit('send-message', "Hello from client!");
 
     const controller = new MainController(
         new View(),
