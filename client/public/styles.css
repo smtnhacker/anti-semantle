@@ -1,7 +1,266 @@
+:root {
+    --white: #F2F2F2;
+    --black: #181818;
+    --muted: #363636;
+    --primary: #5CB8E4;
+    --primary-dark: #459bc4;
+    --secondary: #8758FF;
+}
+
 * {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 body {
-    padding: 12px;
+    background-color: var(--white);
+    color: var(--black);
+}
+
+footer {
+    text-align: center;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin-bottom: 24px;
+    font-style: italic;
+}
+
+#title + .subtitle {
+    margin-top: -48px;
+    font-size: 1.2rem;
+}
+
+.btn {
+    border: 3px dashed var(--black);
+    border-radius: 2rem;;
+    background-color: var(--white);
+    padding: 6px 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn:hover, .btn:focus {
+    border: solid;
+}
+
+.btn-wide {
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+/* Main Menu */
+
+#main-container {
+    padding: 0px 48px;
+}
+
+#title {
+    font-family: monospace;
+    font-size: 4rem;
+}
+
+#main-menu-container {
+    box-sizing: border-box;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#main-menu-container .btn {
+    padding: 8px 24px;
+    font-size: 1.2rem;
+}
+
+.buttons-container {
+    margin-top: 12px;
+}
+
+.buttons-container .btn {
+    margin: 0px 8px;
+}
+
+/* New Game Form */
+
+#new-game-form {
+    box-sizing: border-box;
+    height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-group {
+    box-sizing: border-box;
+    width: 500px;
+    margin: 8px;
+    display: flex;
+    align-items: baseline;
+}
+
+.form-group label {
+    display: block;
+    font-style: italic;
+    box-sizing: border-box;
+    width: 13ch;
+    text-align: right;
+    margin-right: 6px;
+}
+
+.form-group:focus-within label {
+    border-bottom: 3px dotted var(--primary);
+}
+
+.form-group input[type=text] {
+    padding: 6px 18px;
+    border: 1px dashed var(--muted);
+    border-radius: 1rem;
+    width: 30ch;
+}
+
+#room-settings {
+    margin-top: 12px;
+    text-align: center;
+}
+
+#room-settings .subtitle {
+    font-size: 0.8rem;
+    text-align: left;
+    align-items: center;
+    margin: 0;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-group-center {
+    box-sizing: border-box;
+    width: 500px;
+    margin: 8px;
+    text-align: center;
+}
+
+/* Join Lobby */
+
+#join-lobby-container {
+    display: flex;
+    min-height: 90vh;
+    align-items: center;
+}
+
+#joinLobbyForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+}
+
+#public-container {
+    flex-grow: 1;
+}
+
+#public-list {
+    height: 60vh;
+    overflow-y: auto;
+}
+
+.public-list-item {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+}
+
+/* Lobby */
+
+#lobby-container {
+    box-sizing: border-box;
+    height: 90vh;
+    text-align: center;
+    padding: 12px 64px;
+}
+
+#lobby-code {
+    font-size: 1.5rem;
+}
+
+code {
+    font-family: monospace;
+    background: #ffeff0;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 12px;
+}
+
+.list-item {
+    text-decoration: none;
+    padding: 3px 6px;
+    margin: 3px;
+}
+
+#player-list {
+    min-height: 300px;
+}
+
+/* Game Room */
+
+#main-game-container {
+    display: flex;
+    flex-direction: column;
+    height: 90vh;
+}
+
+#game-interface {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+#scores-container {
+    flex-grow: 1;
+    height: 100%;
+    min-width: 250px;
+}
+
+#history-container {
+    flex-grow: 1;
+    height: 100%;
+    min-width: 350px;
+}
+
+#history-list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+#main-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 2;
+    height: 100%;
+}
+
+#mainForm {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#mainForm .form-group {
+    width: 100%;
+}
+
+#mainInput {
+    flex-grow: 1;
+    margin: 6px;
 }

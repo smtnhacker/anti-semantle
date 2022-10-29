@@ -1,3 +1,11 @@
+import { 
+    Title, 
+    NewGameForm,
+    JoinLobby,
+    Lobby,
+    Game,
+ } from "./views/index.mjs";
+
 const WEBSERVER_PATH = 'http://localhost:8080'
 const API_ENDPOINT = 'http://localhost:5000/api/'
 
@@ -10,21 +18,12 @@ function normalizeScore(score) {
     return Math.round(score * 10) * 100;
 }
 
-async function submitWord(word, history, numPlayers) {
-    const numPastWords = numPlayers;
+async function submitWord(word, history, pastWords) {
+    const numPastWords = pastWords.length;
     var score = 2;
-    let pastWords = [];
 
-    if (history.length < numPastWords) {
-        pastWords = history;
-    } else {
-        const l = history.length;
-        pastWords = history.slice(l-numPastWords);
-    }
-
-    for(past of pastWords) {
+    for(const pastWord of pastWords) {
         try {
-            const pastWord = past.word;
             const res = await fetch(API_ENDPOINT + `get_distance=${word},${pastWord}`);
             if (!res.ok) {
                 console.error(res.statusText);
@@ -42,6 +41,19 @@ async function submitWord(word, history, numPlayers) {
     return normalizedScore;
 }
 
+function getRelevantWords(history, numPastWords) {
+    let pastWords = [];
+
+    if (history.length < numPastWords) {
+        pastWords = { ...history };
+    } else {
+        const l = history.length;
+        pastWords = history.slice(l-numPastWords);
+    }
+
+    return Object.keys(pastWords).map(key => pastWords[key].word);
+}
+
 class View {
 
     constructor() {
@@ -50,95 +62,48 @@ class View {
 
     generateMainMenu(publicRooms) {
         const container = document.createElement('div');
+        container.innerHTML = Title();
+        this.root.replaceChildren(container);
         
-        const createBtn = document.createElement('button');
-        createBtn.innerText = "CREATE GAME";
+        const createBtn = document.getElementById('createBtn');
         createBtn.onclick = () => this.generateNewGameMenu();
 
-        const joinBtn = document.createElement('button');
-        joinBtn.innerText = "JOIN ROOM";
+        const joinBtn = document.getElementById('joinBtn');
         joinBtn.onclick = () => this.generateJoinLobby(publicRooms);
 
-        container.replaceChildren(
-            createBtn,
-            joinBtn
-        );
-
-        this.root.replaceChildren(container);
     }
 
     generateNewGameMenu() {
-        const container = document.createElement('form');
+        const container = document.createElement('div');
+        container.innerHTML = NewGameForm();
+        this.root.replaceChildren(container)
 
-        container.innerHTML = /* html */`
-            <div class="form-group">
-                <label>Name</label>
-                <input type="text" id="username" name="username" required />
-            </div>
-            <div class="form-group">
-                <label>Public</label>
-                <input type="checkbox" id="public" name="public" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create Game" />
-            </div>
-        `
+        const form = document.getElementById('new-game-form')
 
-        container.onsubmit = (e) => {
+        form.onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('username').value;
             const isPublic = document.getElementById('public').checked;
             this.onNewRoom(name, isPublic);
         }
 
-        this.root.replaceChildren(container)
     }
 
     generateLobby(roomID, players) {
         const container = document.createElement('div');
-
-        const roomName = document.createElement('h3');
-        roomName.innerText = roomID;
-
-        const playersList = document.createElement('ul');
-        players.forEach(player => {
-            const playerItem = document.createElement('li');
-            playerItem.innerHTML = /* html */`
-                <span>${player.name}</span>
-            `
-            playersList.appendChild(playerItem);
-        });
-
-        const startBtn = document.createElement('button');
-        startBtn.innerText = "START GAME";
-        startBtn.onclick = () => this.onStartGame();
-
-        container.replaceChildren(
-            roomName,
-            playersList,
-            startBtn,
-        );
-
+        container.innerHTML = Lobby("sample", roomID, players);
         this.root.replaceChildren(container);
+
+        const startBtn = document.getElementById('startBtn');
+        startBtn.onclick = () => this.onStartGame();
     }
 
     generateJoinLobby(publicRooms) {
         const container = document.createElement('div');
-        const form = document.createElement('form');
-        
-        form.innerHTML = /* html */`
-            <div class="form-group">
-                <label>Name</label>
-                <input type="text" id="username" name="username" required />
-            </div>
-            <div class="form-group">
-                <label>Lobby Code</label>
-                <input type="text" id="roomID" name="roomID" required />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="JOIN" />
-            </div>
-        `;
+        container.innerHTML = JoinLobby(publicRooms);
+        this.root.replaceChildren(container);
+
+        const form = document.getElementById('joinLobbyForm');
 
         form.onsubmit = (e) => {
             e.preventDefault();
@@ -146,122 +111,34 @@ class View {
             const roomID = document.getElementById('roomID').value;
             this.onJoinRoom(roomID, name);
         }
-        
-        const publicContainer = document.createElement('div');
-        const publicHeader = document.createElement('h3');
-        publicHeader.innerText = 'Public Lobbies';
-        
-        const publicList = document.createElement('ul');
-        publicRooms.forEach(roomID => {
-            const item = document.createElement('li');
-            item.innerHTML = /* html */`
-                ${roomID}
-            `;
-            publicList.appendChild(item);
-        });
-        
-        publicContainer.replaceChildren(
-            publicHeader,
-            publicList
-        );
-        
-        container.appendChild(form);
-        container.appendChild(publicContainer);
-        this.root.replaceChildren(container);
     }
 
-    generateGame(scores, history, players, curPlayer) {
-        // setup UI generators
-        const generateScoresDiv = (currentScore) => {
-            const container = document.createElement('div');
-            const scoreHeader = document.createElement("h3");
-            scoreHeader.innerText = "Scores";
-            container.appendChild(scoreHeader);
-            Object.keys(currentScore).forEach(key => {
-                const name = currentScore[key].name;
-                const score = currentScore[key].score;
-                const curItem = document.createElement('div');
-
-                if (key === curPlayer.id) {
-                    curItem.innerHTML = /* html */`
-                        <strong>${name}</strong>: ${score}
-                    `
-                } else if (!players.filter(p => p.id === key)[0].active) {
-                    curItem.innerHTML = /* html */`
-                        <span style="color:#999">${name}: ${score}</span>
-                    `
-                } else {
-                    curItem.innerHTML = /* html */ `
-                        ${name}: ${score}
-                    `
-                }
-
-                container.appendChild(curItem);
-            });
-            return container;     
-        }
-
-        const generateHistory = (history) => {
-            const container = document.createElement('div');
-            const historyHeader = document.createElement('h3');
-            historyHeader.innerText = "History";
-            const list = document.createElement('ol');
-            history.forEach(({ name, word, score }) => {
-                const curItem = document.createElement('li');
-                curItem.innerHTML = /* html */`
-                    Player ${name}: ${word} (${score})
-                `
-                list.appendChild(curItem);
-            });
-            container.appendChild(historyHeader);
-            container.appendChild(list);
-            return container;
-        }
-        
-        const generateMainForm = () => {
-            const container = document.createElement('form');
-            const input = document.createElement('input');
-            input.setAttribute('type', 'text');
-            const submitBtn = document.createElement('input');
-            submitBtn.setAttribute('type', 'submit');
-            submitBtn.setAttribute('value', 'Submit');
-            
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                if (input.value.trim().length === 0) {
-                    alert("Please input a word");
-                    return;
-                }
-
-                const curWord = input.value.toLowerCase().trim();
-
-                // check if already existing
-                if (history.filter(({ word }) => word === curWord).length) {
-                    alert("Word already used");
-                    return;
-                }
-
-                this.onSubmitWord(curWord)
-            }
-
-            container.appendChild(input);
-            container.appendChild(submitBtn);
-            container.onsubmit = handleSubmit;
-
-            return container;
-        }
-        
-        // Setup the UI
-        const scoresDiv = generateScoresDiv(scores);
-        const mainForm = generateMainForm();
-        const historyDiv = generateHistory(history);
-        
+    generateGame(scores, history, players, curPlayer, pastWords) {
         const container = document.createElement('div');
-        container.appendChild(scoresDiv);
-        container.appendChild(mainForm);
-        container.appendChild(historyDiv);
-        
+        container.innerHTML = Game(scores, history, players, curPlayer, pastWords);
         this.root.replaceChildren(container);
+
+        // apply event handlers
+        const input = document.getElementById("mainInput")
+        const form = document.getElementById("mainForm");
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            if (input.value.trim().length === 0) {
+                alert("Please input a word");
+                return;
+            }
+    
+            const curWord = input.value.toLowerCase().trim();
+    
+            // check if already existing
+            if (history.filter(({ word }) => word === curWord).length) {
+                alert("Word already used");
+                return;
+            }
+    
+            this.onSubmitWord(curWord)
+        }
     }   
 }
 
@@ -294,7 +171,6 @@ class MainController {
     }
 
     refreshLobby(players, publicRooms) {
-        this.numPlayers = players.length
         this.view.generateLobby(this.roomID, players, publicRooms);
     }
 
@@ -315,11 +191,16 @@ class MainController {
 
     refreshGame(scores, history, players, curPlayer) {
         this.history = history;
-        this.view.generateGame(scores, history, players, curPlayer);
+        this.players = players
+        const numPastWords = this.players.length;
+        const pastWords = getRelevantWords(this.history, numPastWords)
+        this.view.generateGame(scores, history, players, curPlayer, pastWords);
     }
 
     submitWord(word) {
-        submitWord(word, this.history, this.numPlayers)
+        const numPastWords = this.players.length;
+        const pastWords = getRelevantWords(this.history, numPastWords)
+        submitWord(word, this.history, pastWords)
             .then(score => {
                 socket.emit('score', score, word, this.roomID);
             })
