@@ -18,7 +18,7 @@ function normalizeScore(score) {
     return Math.round(score * 10) * 100;
 }
 
-async function submitWord(word, history, pastWords) {
+async function getScore(word, history, pastWords) {
     const numPastWords = pastWords.length;
     var score = 2;
 
@@ -137,7 +137,8 @@ class View {
                 return;
             }
     
-            this.onSubmitWord(curWord)
+            e.target.reset();
+            this.onSubmitWord(curWord);
         }
     }   
 }
@@ -200,7 +201,7 @@ class MainController {
     submitWord(word) {
         const numPastWords = this.players.length;
         const pastWords = getRelevantWords(this.history, numPastWords)
-        submitWord(word, this.history, pastWords)
+        getScore(word, this.history, pastWords)
             .then(score => {
                 socket.emit('score', score, word, this.roomID);
             })
