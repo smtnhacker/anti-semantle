@@ -3,5 +3,4 @@ env/
 *pycache*
 env.*
 .env
-*.gz
 node_modules
