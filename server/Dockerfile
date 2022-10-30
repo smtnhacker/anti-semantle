@@ -15,4 +15,4 @@ EXPOSE 5000
 COPY ./data/gensim data/gensim
 COPY . .
 
-CMD ["python3", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "wsgi:app"]
+CMD ["python3", "-m", "gunicorn", "--bind", "0.0.0.0:80", "--timeout", "600", "wsgi:app"]

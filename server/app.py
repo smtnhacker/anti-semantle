@@ -5,6 +5,7 @@ from flask_cors import CORS
 import gensim.downloader as api
 
 model = api.load('glove-wiki-gigaword-50')
+print("loaded model", api.info())
 app = Flask(__name__)
 CORS(app)
 
