@@ -6,9 +6,6 @@ import {
     Game,
  } from "./views/index.mjs";
 
-const WEBSERVER_PATH = 'http://localhost:8080'
-const API_ENDPOINT = 'http://localhost:5000/api/'
-
 const socket = io(WEBSERVER_PATH, {
     withCredentials: true,
     autoConnect: false,

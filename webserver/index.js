@@ -18,7 +18,7 @@ app.use(cors({
 }))
 
 const sessionMiddleware = session({
-    secret: "its a secret",
+    secret: process.env.SECRET || "its a secret",
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -162,6 +162,8 @@ io.on('connection', (socket) => {
     })
 })
 
-httpServer.listen(8080, () => {
-    console.log('webserver listening at port 8080')
+const PORT = process.env.PORT || 8080;
+
+httpServer.listen(PORT, () => {
+    console.log(`webserver listening at port ${PORT}`)
 })
