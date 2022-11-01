@@ -21,7 +21,10 @@ services:
     ports:
       - 8080:8080
   client:
-    build: ./client
+    build: 
+      context: ./client
+      args:
+        - ARG_ENV=production
     command: ["serve", "public"]
     ports:
       - 3000:3000
