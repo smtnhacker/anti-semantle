@@ -8,7 +8,7 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_RUN_HOST=0.0.0.0
-      - ENV=development
+      - ENV=production
   nginx:
     build: ./nginx
     ports:
@@ -24,7 +24,7 @@ services:
     build: 
       context: ./client
       args:
-        - ARG_ENV=development
+        - ARG_ENV=production
     command: ["serve", "public"]
     ports:
       - 3000:3000
