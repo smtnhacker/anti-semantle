@@ -100,7 +100,6 @@ class View {
 
             const distance = (xmid - e.x) ** 2 + (ymid - e.y) ** 2;
             const factor = Math.min(5, Math.max(distance / 50000, 0.2));
-            console.log(factor)
 
             this.titleFactors = factor
         }
