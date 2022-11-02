@@ -10,8 +10,8 @@ export default function Title() {
             </h1>
             <div class="subtitle">Broaden your creativity. Go against semantics.</div>
             <div id="mainBtns" class="buttons-container">
-                <button id="createBtn" class="btn">Create Game</button>
-                <button id="joinBtn" class="btn">Join Room</button>
+                <button id="createBtn" class="btn btn-primary">Create Game</button>
+                <button id="joinBtn" class="btn btn-secondary">Join Room</button>
             </div>
         </div>
     `;

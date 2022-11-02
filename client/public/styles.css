@@ -44,6 +44,16 @@ footer {
     border: solid;
 }
 
+.btn-primary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-secondary:hover {
+    border-color: var(--secondary);
+    color: var(--secondary);
+}
+
 .btn-wide {
     padding-left: 24px;
     padding-right: 24px;
