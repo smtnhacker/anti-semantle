@@ -49,6 +49,42 @@ footer {
     padding-right: 24px;
 }
 
+/* Title effects */
+
+.title-letter {
+    font-family: monospace;
+}
+
+.title-letter[data-phase="0"] {
+    text-transform: lowercase;
+    font-family: monospace;
+}
+
+.title-letter[data-phase="1"] {
+    text-transform: uppercase;
+    font-family: monospace;
+}
+
+.title-letter[data-phase="2"] {
+    text-transform: lowercase;
+    font-family: serif;
+}
+
+.title-letter[data-phase="3"] {
+    text-transform: uppercase;
+    font-family: serif;
+}
+
+.title-letter[data-phase="4"] {
+    text-transform: lowercase;
+    font-family: sans-serif;
+}
+
+.title-letter[data-phase="5"] {
+    text-transform: uppercase;
+    font-family: sans-serif;
+}
+
 /* Main Menu */
 
 #main-container {

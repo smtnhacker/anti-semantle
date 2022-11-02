@@ -55,6 +55,9 @@ class View {
 
     constructor() {
         this.root = document.getElementById('app');
+
+        this.prevTitleInterval = {}
+        this.titleFactors = 1
     }
 
     generateMainMenu(publicRooms) {
@@ -67,6 +70,42 @@ class View {
 
         const joinBtn = document.getElementById('joinBtn');
         joinBtn.onclick = () => this.generateJoinLobby(publicRooms);
+
+        /* ================================ */
+        /* === Add chaotic title effect === */
+        /* ================================ */
+
+        const letters = document.getElementsByClassName('title-letter');
+        Array.from(letters).forEach((letterSpan, index) => {
+
+            const nextPhase = () => {
+                const factor = this.titleFactors
+                const MAX = 6;
+                setTimeout(() => {
+                    const attr = letterSpan.getAttribute('data-phase');
+                    const nextAttr = ((parseInt(attr) + 1) % MAX).toString();
+                    letterSpan.setAttribute('data-phase', nextAttr);
+                    nextPhase();
+                }, factor * (500 * Math.random() + 100))
+            }
+
+            nextPhase();
+        })
+
+        container.onmousemove = (e) => {
+            // get the bounding box of the buttons
+            const bbox = document.getElementById('mainBtns').getBoundingClientRect();
+            const xmid = bbox.x + bbox.width / 2;
+            const ymid = bbox.y + bbox.height / 2;
+
+            const distance = (xmid - e.x) ** 2 + (ymid - e.y) ** 2;
+            const factor = Math.min(5, Math.max(distance / 50000, 0.2));
+            console.log(factor)
+
+            this.titleFactors = factor
+        }
+
+    
 
     }
 
