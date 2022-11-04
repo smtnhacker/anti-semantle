@@ -125,6 +125,13 @@ class Room {
 
             this.members.forEach(person => this.ScoreController.set(person.id, person.name, 0));
             this.constraints = await this.gameMaster.generateConstraints(this.constraintsOpts)
+
+            // add seed words
+            for(let i=0; i<this.members.length; i++) {
+                const randWord = await this.gameMaster.getRandomWord();
+                this.HistoryController.addEntry('Seed', randWord, 0);
+            }
+
         } else {
             throw new Error('Room cannot start unless in lobby.')
         }
@@ -147,7 +154,7 @@ class Room {
             players: this.getMembers(),
             scores: this.ScoreController.generateScoreBoard(),
             history: this.HistoryController.generateHistory(),
-            pastWords: this.gameMaster.getRelevantWords(this.HistoryController.generateHistory(), this.getMembers().length),
+            pastWords: this.gameMaster.getRelevantWords(this.HistoryController.generateHistory(), this.members.length),
             constraints: this.constraints
         }
     }

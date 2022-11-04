@@ -51,6 +51,15 @@ class GameControl {
         return Math.floor(150 * Array.from(distances).reduce((total, cur) => Math.min(total, cur), 2)) * 10;
     }
 
+    async getRandomWord() {
+        try {
+            const response = await axios.get(`${this.api}/get_random_word`);
+            return response.data.result;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     async generateConstraints(opts = {}) {
         const res = {};
 
