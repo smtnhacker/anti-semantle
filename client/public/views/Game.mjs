@@ -45,7 +45,7 @@ export function History(history) {
     `;
 }
 
-export function MainGame(pastWords) {
+export function MainGame(pastWords, constraints) {
     return /* html */`
         <div id="main-container">
             <div id="round-info">
@@ -61,6 +61,39 @@ export function MainGame(pastWords) {
                         }, "")
                     }
                 </div>
+                ${
+                    constraints.useLetters && 
+                    /* html */`
+                        <h3>Use these letters</h3>
+                        <div>
+                            ${constraints.useLetters.reduce((total, letter) => {
+                                return total + " " + letter
+                            }, "")}
+                        </div>
+                    `
+                }
+                ${
+                    constraints.avoidLetters &&
+                    /* html */`
+                    <h3>Do not use these letters</h3>
+                    <div>
+                        ${constraints.avoidLetters.reduce((total, letter) => {
+                            return total + " " + letter
+                        }, "")}
+                    </div>
+                    `
+                }
+                ${
+                    constraints.avoidWords &&
+                    /* html */`
+                    <h3>Completely avoid these words</h3>
+                    <div>
+                        ${constraints.avoidWords.reduce((total, word) => {
+                            return total + "\n" + word
+                        }, "")}
+                    </div>
+                    `
+                }
             </div>
             <form id="mainForm">
                 <div class="form-group">
@@ -72,13 +105,13 @@ export function MainGame(pastWords) {
     `
 }
 
-export default function Game(scores, history, players, currentPlayer, pastWords) {
+export default function Game(scores, history, players, currentPlayer, pastWords, constraints) {
     return /* html */`
         <div id="main-game-container">
             <h1 id="title">anti-semantle</h1>
             <div id="game-interface">
                 ${Scores(scores, players, currentPlayer)}
-                ${MainGame(pastWords)}
+                ${MainGame(pastWords, constraints)}
                 ${History(history)}
             </div>
         </div>

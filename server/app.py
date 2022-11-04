@@ -1,10 +1,12 @@
 import os
+import random
 import json
 from flask import Flask, request, send_from_directory, Response
 from flask_cors import CORS
 import gensim.downloader as api
 
 model = api.load('glove-wiki-gigaword-50')
+vocab = model.index_to_key[50:7000]
 print("loaded model", model.similarity("spain", "france"))
 app = Flask(__name__)
 CORS(app)
@@ -33,6 +35,10 @@ def check_exists(word):
 @app.route("/api/get_rank=<word1>,<word2>")
 def get_rank(word1, word2):
     return Response(json.dumps({ "rank": model.rank(word1, word2) }), mimetype='application/json')
+
+@app.route("/api/get_random_word")
+def get_random_word():
+    return Response(json.dumps({ "result": random.choice(vocab) }))
 
 @app.get("/<path:path>")
 def file(path):

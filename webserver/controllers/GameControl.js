@@ -27,6 +27,16 @@ class GameControl {
         }
     }
 
+    async getRank(distWord, srcWord) {
+        try {
+            const response = await axios.get(`${this.api}/get_rank=${srcWord},${distWord}`);
+            return response.data.rank;
+        } catch (err) {
+            console.log(err);
+            return 0;
+        }
+    }
+
     async isValid(word) {
         try {
             const response = await axios.get(`${this.api}/exists=${word}`);
@@ -39,6 +49,58 @@ class GameControl {
 
     getScore(distances, opt = {}) {
         return Math.floor(150 * Array.from(distances).reduce((total, cur) => Math.min(total, cur), 2)) * 10;
+    }
+
+    async generateConstraints(opts = {}) {
+        const res = {};
+
+        const getRandomLetter = () => {
+            const letters = "abcdefghijklmnoprstuvwy";
+            const index = Math.floor(Math.random() * letters.length);
+            return letters[index];
+        }
+
+        // needed letters
+        if (opts.useLetters) {
+            const useLetters = [];
+            const numLetters = Math.ceil(Math.random() * 3);
+            Array(numLetters).fill(0).forEach(() => {
+                while (true) {
+                    const randLetter = getRandomLetter();
+                    if (!useLetters.includes(randLetter)) {
+                        useLetters.push(randLetter);
+                        break;
+                    }
+                }
+            });
+            res.useLetters = useLetters;
+        }
+
+        // illegal letters
+        if (opts.avoidLetters) {
+            const avoidLetters = [];
+            const numLetters = Math.ceil(Math.random() * 3);
+            Array(numLetters).fill(0).forEach(() => {
+                while (true) {
+                    const randLetter = getRandomLetter();
+                    if (!avoidLetters.includes(randLetter) && !res.useLetters?.includes(randLetter)) {
+                        avoidLetters.push(randLetter);
+                        break;
+                    }
+                }
+            });
+            res.avoidLetters = avoidLetters;
+        }
+
+        // dangerous words
+        if (opts.avoidWords) {
+            const randWordRes = await axios.get(`${this.api}/get_random_word`);
+            const randWord = randWordRes.data.result;
+            res.avoidWords = [randWord];
+        }
+
+        return res;
+
     }
 
     async attemptSubmit(wordRaw, constraints) {
@@ -57,6 +119,31 @@ class GameControl {
         }
 
         /* === CONSTRAINT CHECKING === */
+
+        // check that the word contains the needed letters
+        const useLetters = constraints.useLetters || [];
+        for(const letter of useLetters) {
+            if (!word.includes(letter)) {
+                throw new Error(`Must include letter ${letter}`);
+            }
+        }
+
+        // check that the word avoids the illegal letters
+        const avoidLetters = constraints.avoidLetters || [];
+        for(const letter of avoidLetters) {
+            if (word.includes(letter)) {
+                throw new Error(`Must not include letter ${letter}`);
+            }
+        }
+
+        // check that the word avoids the dangerous words
+        const avoidWords = constraints.avoidLetters || [];
+        for(const badWord of avoidWords) {
+            const rank = await this.getRank(badWord, word);
+            if (rank <= 1000) {
+                throw new Error(`Word did not avoid dangerous word "${badWord}" enough`);
+            }
+        }
         
         // if the word passes the constraints, get the distances
         const { numPlayers } = constraints;

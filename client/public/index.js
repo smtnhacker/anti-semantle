@@ -11,19 +11,6 @@ const socket = io(WEBSERVER_PATH, {
     autoConnect: false,
 })
 
-function getRelevantWords(history, numPastWords) {
-    let pastWords = [];
-
-    if (history.length < numPastWords) {
-        pastWords = { ...history };
-    } else {
-        const l = history.length;
-        pastWords = history.slice(l-numPastWords);
-    }
-
-    return Object.keys(pastWords).map(key => pastWords[key].word);
-}
-
 class View {
 
     constructor() {
@@ -121,9 +108,9 @@ class View {
         }
     }
 
-    generateGame(scores, history, players, curPlayer, pastWords) {
+    generateGame(scores, history, players, curPlayer, pastWords, constraints) {
         const container = document.createElement('div');
-        container.innerHTML = Game(scores, history, players, curPlayer, pastWords);
+        container.innerHTML = Game(scores, history, players, curPlayer, pastWords, constraints);
         this.root.replaceChildren(container);
 
         // apply event handlers
@@ -192,12 +179,10 @@ class MainController {
         socket.emit('start-room', this.roomID);
     }
 
-    refreshGame(scores, history, players, curPlayer) {
+    refreshGame(scores, history, pastWords, players, curPlayer, constraints) {
         this.history = history;
         this.players = players
-        const numPastWords = Math.ceil(this.players.length * 1.5);
-        const pastWords = getRelevantWords(this.history, numPastWords)
-        this.view.generateGame(scores, history, players, curPlayer, pastWords);
+        this.view.generateGame(scores, history, players, curPlayer, pastWords, constraints);
     }
 
     submitWord(word) {
@@ -218,5 +203,6 @@ window.onload = async () => {
     );
 
     socket.on('joined-room', (players) => controller.refreshLobby(players))
-    socket.on('update-game', (scores, history, players, curPlayer) => controller.refreshGame(scores, history, players, curPlayer))
+    socket.on('update-game', (scores, history, pastWords, players, curPlayer, constraints) => 
+        controller.refreshGame(scores, history, pastWords, players, curPlayer, constraints))
 }

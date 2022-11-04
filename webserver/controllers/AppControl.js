@@ -18,9 +18,9 @@ class AppControl {
         return roomID;
     }
 
-    createRoom(isPublic) {
+    createRoom(opts) {
         const roomID = this.createRoomID();
-        this.rooms[roomID] = new Room(roomID, isPublic);
+        this.rooms[roomID] = new Room(roomID, opts, this.gameMaster);
         return roomID;
     }
 
@@ -61,9 +61,9 @@ class AppControl {
         }
     }
 
-    startRoom(roomID) {
+    async startRoom(roomID) {
         if (roomID in this.rooms) {
-            this.rooms[roomID].startGame();
+            await this.rooms[roomID].startGame();
         } else {
             throw new Error("Room doesn't exist");
         }
@@ -78,11 +78,12 @@ class AppControl {
             if (curPlayer.id === person.id) {
                 const constraints = {
                     usedWords: screenshot.history,
-                    numPlayers: screenshot.players.length
+                    numPlayers: screenshot.players.length,
+                    ...screenshot.constraints
                 }
                 const score = await this.gameMaster.attemptSubmit(word, constraints);
                 room.addEntry(person, word, score);
-                room.setNextPlayer();
+                await room.setNextPlayer();
                 return room.getScreenshot();
             } else {
                 throw new Error("It's not your turn yet...");

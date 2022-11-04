@@ -65,11 +65,16 @@ class Room {
         ENDED: 2,
     }
 
-    constructor(
-        id, isPublic
-    ) {
+    constructor(id, opts, gameMaster) {
+
         this.id = id
-        this.isPublic = isPublic
+        this.isPublic = opts.isPublic
+        this.constraintsOpts = {
+            useLetters: opts.useLetters,
+            avoidLetters: opts.avoidLetters,
+            avoidWords: opts.avoidWords
+        }
+        this.gameMaster = gameMaster
 
         this.state = Room.STATES.IN_LOBBY
         this.curPlayer = -1
@@ -111,12 +116,13 @@ class Room {
         }
     }
 
-    startGame() {
+    async startGame() {
         if (this.state === Room.STATES.IN_LOBBY) {
             this.state = Room.STATES.IN_GAME;
             this.curPlayer = -1;
 
             this.members.forEach(person => this.ScoreController.set(person.id, person.name, 0));
+            this.constraints = await this.gameMaster.generateConstraints(this.constraintsOpts)
         } else {
             throw new Error('Room cannot start unless in lobby.')
         }
@@ -137,7 +143,9 @@ class Room {
             curPlayer: this.peekNextPlayer(),
             players: this.getMembers(),
             scores: this.ScoreController.generateScoreBoard(),
-            history: this.HistoryController.generateHistory()
+            history: this.HistoryController.generateHistory(),
+            pastWords: this.gameMaster.getRelevantWords(this.HistoryController.generateHistory(), this.getMembers().length),
+            constraints: this.constraints
         }
     }
 
@@ -150,8 +158,9 @@ class Room {
         }
     }
 
-    setNextPlayer() {
+    async setNextPlayer() {
         this.curPlayer++;
+        this.constraints = await this.gameMaster.generateConstraints(this.constraintsOpts)
     }
 }
 
