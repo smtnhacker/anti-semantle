@@ -136,10 +136,24 @@ io.on('connection', (socket) => {
         try {
             const res = await appControl.attemptSubmit(roomID, player, word);
             const { scores, history, players, curPlayer, pastWords, constraints } = res;
-            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints)
+            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
         } catch (err) {
             console.log(err);
             cb(err.message);
+        }
+    })
+
+    socket.on('pass', async (roomID) => {
+        const player = {
+            id: req.sessionID,
+            name: req.session.name
+        };
+        try {
+            const res = await appControl.pass(roomID, player);
+            const { scores, history, players, curPlayer, pastWords, constraints } = res;
+            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
+        } catch (err) {
+            console.log(err);
         }
     })
 

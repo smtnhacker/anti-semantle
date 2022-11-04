@@ -129,6 +129,11 @@ class View {
             e.target.reset();
             this.onSubmitWord(curWord);
         }
+
+        const passBtn = document.getElementById('passBtn');
+        passBtn.onclick = () => {
+            this.onPass();
+        }
     }   
 }
 
@@ -141,6 +146,7 @@ class MainController {
         this.view.onJoinRoom = (roomID, name) => this.joinRoom(roomID, name);
         this.view.onStartGame = () => this.startGame();
         this.view.onSubmitWord = (word) =>  this.submitWord(word);
+        this.view.onPass = () => this.pass();
 
         socket.timeout(3000).emit('get-public-rooms', (err, publicRooms) => {
             if (err) {
@@ -189,6 +195,10 @@ class MainController {
         socket.emit('submit-word', this.roomID, word, (err) => {
             alert(err);
         })
+    }
+
+    pass() {
+        socket.emit('pass', this.roomID)
     }
 }
 

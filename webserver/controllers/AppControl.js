@@ -93,6 +93,28 @@ class AppControl {
         }
     }
 
+    async pass(roomID, person) {
+        if (roomID in this.rooms) {
+            const room = this.rooms[roomID];
+            const screenshot = room.getScreenshot();
+            const curPlayer = room.peekNextPlayer();
+
+            if (curPlayer.id === person.id) {
+                const constraints = {
+                    usedWords: screenshot.history,
+                    numPlayers: screenshot.players.length,
+                    ...screenshot.constraints
+                }
+                await room.setNextPlayer();
+                return room.getScreenshot();
+            } else {
+                throw new Error("It's not your turn yet...");
+            }
+        } else {
+            throw new Error("Room doesn't exist");
+        }
+    }
+
     peekRoom(roomID) {
         if (roomID in this.rooms) {
             return this.rooms[roomID].getScreenshot();

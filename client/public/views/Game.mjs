@@ -99,6 +99,7 @@ export function MainGame(pastWords, constraints) {
                 <div class="form-group">
                     <input id="mainInput" type="text" placeholder="Enter the least semantically-relevant word" required />
                     <input class="btn" type="submit" value="Submit" />
+                    <button id="passBtn" class="btn" style="margin-left: 6px">Pass</button>
                 </div>
             </form>
         </div>
