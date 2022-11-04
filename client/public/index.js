@@ -86,7 +86,7 @@ class View {
                     const nextAttr = ((parseInt(attr) + 1) % MAX).toString();
                     letterSpan.setAttribute('data-phase', nextAttr);
                     nextPhase();
-                }, factor * (500 * Math.random() + 100))
+                }, factor * (500 * Math.random() + 500))
             }
 
             nextPhase();
