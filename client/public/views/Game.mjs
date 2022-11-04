@@ -33,11 +33,11 @@ export function History(history) {
                 ${
                     history.reduce((total, cur, index) => {
                         const { name, word, score } = cur;
-                        return total + "\n" + /* html */`
+                        return /* html */`
                             <div class="list-item">
                                 ${index+1}. ${name}: ${word} (${score})
                             </div>
-                        `;
+                        ` + "\n" + total;
                     }, "")
                 }
             </div>
