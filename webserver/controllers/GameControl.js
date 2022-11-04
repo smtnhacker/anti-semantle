@@ -85,7 +85,7 @@ class GameControl {
         // illegal letters
         if (opts.avoidLetters) {
             const avoidLetters = [];
-            const numLetters = Math.ceil(Math.random() * 3);
+            const numLetters = Math.ceil(Math.random() * 7);
             Array(numLetters).fill(0).forEach(() => {
                 while (true) {
                     const randLetter = getRandomLetter();
@@ -100,9 +100,14 @@ class GameControl {
 
         // dangerous words
         if (opts.avoidWords) {
-            const randWordRes = await axios.get(`${this.api}/get_random_word`);
-            const randWord = randWordRes.data.result;
-            res.avoidWords = [randWord];
+            const avoidWords = [];
+            const numWords = Math.ceil(Math.random() * 5);
+            for(let i=0; i<numWords; i++) {
+                const randWordRes = await axios.get(`${this.api}/get_random_word`);
+                const randWord = randWordRes.data.result;
+                avoidWords.push(randWord);
+            }
+            res.avoidWords = avoidWords;
         }
 
         return res;
