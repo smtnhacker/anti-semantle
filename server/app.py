@@ -6,7 +6,7 @@ from flask_cors import CORS
 import gensim.downloader as api
 
 model = api.load('glove-wiki-gigaword-50')
-vocab = model.index_to_key[50:7000]
+vocab = list(filter(lambda x: x.isalpha() and len(x) > 3, model.index_to_key[50:7000]))
 print("loaded model", model.similarity("spain", "france"))
 app = Flask(__name__)
 CORS(app)
