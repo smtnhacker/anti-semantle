@@ -157,10 +157,6 @@ footer {
     margin-right: 6px;
 }
 
-.form-group:focus-within label {
-    border-bottom: 3px dotted var(--primary);
-}
-
 .form-group input[type=text] {
     padding: 6px 18px;
     border: 1px dashed var(--muted);
@@ -180,10 +176,15 @@ footer {
     margin: 0;
 }
 
+#room-settings > .form-group {
+    flex-direction: column;
+}
+
 .checkbox-group {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 12px;
 }
 
 .form-group-center {

@@ -87,9 +87,13 @@ class View {
             const name = document.getElementById('username').value;
             const roomName = roomname.value;
             const isPublic = document.getElementById('public').checked;
+            const avoidLetters = document.getElementById('avoidLetters').checked;
+            const avoidWords = document.getElementById('avoidWords').checked;
 
             const opts = {
-                isPublic: isPublic
+                isPublic: isPublic,
+                avoidLetters: avoidLetters,
+                avoidWords: avoidWords
             }
 
             this.onNewRoom(name, roomName, opts);

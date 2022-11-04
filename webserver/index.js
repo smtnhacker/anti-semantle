@@ -121,9 +121,7 @@ io.on('connection', (socket) => {
     socket.on('create-room', (roomName, _opts, cb) => {
         const opts = {
             ..._opts,
-            useLetters: true,
-            avoidLetters: true,
-            avoidWords: true
+            useLetters: false,
         }
         const roomID = appControl.createRoom(roomName, opts);
         cb(roomID);
