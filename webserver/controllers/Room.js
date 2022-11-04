@@ -65,9 +65,11 @@ class Room {
         ENDED: 2,
     }
 
-    constructor(id, opts, gameMaster) {
+    constructor(id, name, opts, gameMaster) {
 
         this.id = id
+        this.name = name
+
         this.isPublic = opts.isPublic
         this.constraintsOpts = {
             useLetters: opts.useLetters,
@@ -139,6 +141,7 @@ class Room {
 
     getScreenshot() {
         return {
+            roomName: this.name,
             state: this.state,
             curPlayer: this.peekNextPlayer(),
             players: this.getMembers(),

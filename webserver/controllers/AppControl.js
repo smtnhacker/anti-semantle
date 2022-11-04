@@ -18,9 +18,9 @@ class AppControl {
         return roomID;
     }
 
-    createRoom(opts) {
+    createRoom(roomName, opts) {
         const roomID = this.createRoomID();
-        this.rooms[roomID] = new Room(roomID, opts, this.gameMaster);
+        this.rooms[roomID] = new Room(roomID, roomName, opts, this.gameMaster);
         return roomID;
     }
 

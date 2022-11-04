@@ -29,6 +29,22 @@ const sessionMiddleware = session({
 
 app.use(sessionMiddleware)
 
+/* ================= */
+/* == Random APIs == */
+/* ================= */
+
+const { uniqueNamesGenerator, adjectives, colors, names } = require('unique-names-generator');
+
+app.get('/api/get_room_name', (req, res) => {
+    res.json({
+        result: uniqueNamesGenerator({
+            dictionaries: [adjectives, colors, names],
+            separator: "-",
+            length: 3
+        })
+    })
+})
+
 app.get("*", (req, res) => {
     res.end()
 })
@@ -83,15 +99,15 @@ io.on('connection', (socket) => {
                 id: req.sessionID,
                 name: req.session.name
             }
-            const { state, scores, history, players, curPlayer, pastWords, constraints } = appControl.joinRoom(roomID, player);
+            const { roomName, state, scores, history, players, curPlayer, pastWords, constraints } = appControl.joinRoom(roomID, player);
             socket.join(roomID);
             req.session.room = roomID;
             req.session.save();
 
             if (state === Room.STATES.IN_LOBBY) {
-                io.to(roomID).emit('joined-room', players);
+                io.to(roomID).emit('joined-room', players, roomName);
             } else if (state === Room.STATES.IN_GAME) {
-                io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
+                io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
             }
 
             cb();
@@ -102,14 +118,14 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('create-room', (isPublic, cb) => {
+    socket.on('create-room', (roomName, _opts, cb) => {
         const opts = {
-            isPublic: isPublic,
+            ..._opts,
             useLetters: true,
             avoidLetters: true,
             avoidWords: true
         }
-        const roomID = appControl.createRoom(opts);
+        const roomID = appControl.createRoom(roomName, opts);
         cb(roomID);
     })
 
@@ -121,8 +137,8 @@ io.on('connection', (socket) => {
     socket.on('start-room', async (roomID) => {
         try {
             await appControl.startRoom(roomID);
-            const { scores, history, players, curPlayer, pastWords, constraints } = appControl.peekRoom(roomID);
-            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
+            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = appControl.peekRoom(roomID);
+            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
         } catch (err) {
             console.error(err);
         }
@@ -135,8 +151,8 @@ io.on('connection', (socket) => {
         };
         try {
             const res = await appControl.attemptSubmit(roomID, player, word);
-            const { scores, history, players, curPlayer, pastWords, constraints } = res;
-            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
+            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = res;
+            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
         } catch (err) {
             console.log(err);
             cb(err.message);
@@ -150,8 +166,8 @@ io.on('connection', (socket) => {
         };
         try {
             const res = await appControl.pass(roomID, player);
-            const { scores, history, players, curPlayer, pastWords, constraints } = res;
-            io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer, constraints);
+            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = res;
+            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
         } catch (err) {
             console.log(err);
         }
@@ -165,11 +181,11 @@ io.on('connection', (socket) => {
         };
         try {
             if (roomID) {
-                const { state, players, curPlayer, scores, history, pastWords } = appControl.leaveRoom(roomID, player);
+                const { roomName, state, players, curPlayer, scores, history, pastWords, constraints } = appControl.leaveRoom(roomID, player);
                 if (state === Room.STATES.IN_LOBBY) {
                     io.to(roomID).emit('joined-room', players);
                 } else if (state === Room.STATES.IN_GAME) {
-                    io.to(roomID).emit('update-game', scores, history, pastWords, players, curPlayer);
+                    io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
                 }
                 socket.leave(roomID);
                 delete req.session.room;

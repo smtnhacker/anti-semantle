@@ -16,6 +16,7 @@
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "nanoid": "^3.3.4",
-    "socket.io": "^4.5.3"
+    "socket.io": "^4.5.3",
+    "unique-names-generator": "^4.7.1"
   }
 }

@@ -73,20 +73,34 @@ class View {
         container.innerHTML = NewGameForm();
         this.root.replaceChildren(container)
 
+        // add some fancy names
+        const roomname = document.getElementById('roomname');
+        fetch(WEBSERVER_PATH + "/api/get_room_name")
+            .then(res => res.json())
+            .then(res => roomname.setAttribute('value', res.result))
+
+        // add event handlers
         const form = document.getElementById('new-game-form')
 
         form.onsubmit = (e) => {
             e.preventDefault();
             const name = document.getElementById('username').value;
+            const roomName = roomname.value;
             const isPublic = document.getElementById('public').checked;
-            this.onNewRoom(name, isPublic);
+
+            const opts = {
+                isPublic: isPublic
+            }
+
+            this.onNewRoom(name, roomName, opts);
         }
+
 
     }
 
-    generateLobby(roomID, players) {
+    generateLobby(roomID, roomName, players) {
         const container = document.createElement('div');
-        container.innerHTML = Lobby("sample", roomID, players);
+        container.innerHTML = Lobby(roomName, roomID, players);
         this.root.replaceChildren(container);
 
         const startBtn = document.getElementById('startBtn');
@@ -108,9 +122,9 @@ class View {
         }
     }
 
-    generateGame(scores, history, players, curPlayer, pastWords, constraints) {
+    generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints) {
         const container = document.createElement('div');
-        container.innerHTML = Game(scores, history, players, curPlayer, pastWords, constraints);
+        container.innerHTML = Game(roomName, scores, history, players, curPlayer, pastWords, constraints);
         this.root.replaceChildren(container);
 
         // apply event handlers
@@ -142,7 +156,7 @@ class MainController {
         this.view = view;
         this.model = model;
 
-        this.view.onNewRoom = (name, isPublic) => this.createRoom(name, isPublic);
+        this.view.onNewRoom = (name, roomName, opts) => this.createRoom(name, roomName, opts);
         this.view.onJoinRoom = (roomID, name) => this.joinRoom(roomID, name);
         this.view.onStartGame = () => this.startGame();
         this.view.onSubmitWord = (word) =>  this.submitWord(word);
@@ -157,17 +171,17 @@ class MainController {
         })
     }
 
-    createRoom(hostName, isPublic) {
+    createRoom(hostName, roomName, opts) {
         socket.emit('set-username', hostName, () => {
-            socket.emit('create-room', isPublic, (roomID) => {
+            socket.emit('create-room', roomName, opts, (roomID) => {
                 this.roomID = roomID;
                 socket.emit('join-room', roomID, () => {});
             })
         });
     }
 
-    refreshLobby(players, publicRooms) {
-        this.view.generateLobby(this.roomID, players, publicRooms);
+    refreshLobby(players, roomName) {
+        this.view.generateLobby(this.roomID, roomName, players);
     }
 
     joinRoom(roomID, name) {
@@ -185,10 +199,10 @@ class MainController {
         socket.emit('start-room', this.roomID);
     }
 
-    refreshGame(scores, history, pastWords, players, curPlayer, constraints) {
+    refreshGame(roomName, scores, history, pastWords, players, curPlayer, constraints) {
         this.history = history;
         this.players = players
-        this.view.generateGame(scores, history, players, curPlayer, pastWords, constraints);
+        this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints);
     }
 
     submitWord(word) {
@@ -212,7 +226,7 @@ window.onload = async () => {
         null
     );
 
-    socket.on('joined-room', (players) => controller.refreshLobby(players))
-    socket.on('update-game', (scores, history, pastWords, players, curPlayer, constraints) => 
-        controller.refreshGame(scores, history, pastWords, players, curPlayer, constraints))
+    socket.on('joined-room', (players, roomName) => controller.refreshLobby(players, roomName))
+    socket.on('update-game', (roomName, scores, history, pastWords, players, curPlayer, constraints) => 
+        controller.refreshGame(roomName, scores, history, pastWords, players, curPlayer, constraints))
 }

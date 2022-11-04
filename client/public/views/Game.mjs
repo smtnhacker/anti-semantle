@@ -106,7 +106,7 @@ export function MainGame(pastWords, constraints) {
     `
 }
 
-export default function Game(scores, history, players, currentPlayer, pastWords, constraints) {
+export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints) {
     return /* html */`
         <div id="main-game-container">
             <h1 id="title">anti-semantle</h1>
