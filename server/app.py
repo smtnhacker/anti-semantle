@@ -19,20 +19,20 @@ def health_check():
 
 @app.route("/api/get_distance=<word1>,<word2>")
 def get_distance(word1, word2):
-    return Response(json.dumps({ "distance": str(model.distance(word1, word2)) }), mimetype='application/json')
+    return Response(json.dumps({ "distance": model.distance(word1, word2) }), mimetype='application/json')
 
 @app.post("/api/get_distances=<word>")
 def get_distances(word):
     wordList = request.json.get('words')
-    return Response(json.dumps({ "distances": str(model.distances(word, wordList).tolist()) }), mimetype='application/json')
+    return Response(json.dumps({ "distances": model.distances(word, wordList).tolist() }), mimetype='application/json')
 
 @app.route("/api/exists=<word>")
 def check_exists(word):
-    return Response(json.dumps({ "result": str(model.has_index_for(word)) }), mimetype='application/json')
+    return Response(json.dumps({ "result": model.has_index_for(word) }), mimetype='application/json')
 
 @app.route("/api/get_rank=<word1>,<word2>")
 def get_rank(word1, word2):
-    return Response(json.dumps({ "rank": str(model.rank(word1, word2)) }), mimetype='application/json')
+    return Response(json.dumps({ "rank": model.rank(word1, word2) }), mimetype='application/json')
 
 @app.get("/<path:path>")
 def file(path):
