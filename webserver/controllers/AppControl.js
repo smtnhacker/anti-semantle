@@ -1,11 +1,13 @@
 const { nanoid } = require('nanoid')
 
 const { Room } = require('./Room')
+const { GameControl } = require('./GameControl')
 
 class AppControl {
 
-    constructor() {
+    constructor(api = "http://localhost:5000/api") {
         this.rooms = { };
+        this.gameMaster = new GameControl(api)
     }
 
     createRoomID() {
@@ -18,7 +20,6 @@ class AppControl {
 
     createRoom(isPublic) {
         const roomID = this.createRoomID();
-        console.log(roomID, "public:", isPublic);
         this.rooms[roomID] = new Room(roomID, isPublic);
         return roomID;
     }
@@ -68,20 +69,25 @@ class AppControl {
         }
     }
 
-    submitEntry(roomID, person, word, score) {
+    async attemptSubmit(roomID, person, word) {
         if (roomID in this.rooms) {
             const room = this.rooms[roomID];
+            const screenshot = room.getScreenshot();
             const curPlayer = room.peekNextPlayer();
 
             if (curPlayer.id === person.id) {
+                const constraints = {
+                    usedWords: screenshot.history,
+                    numPlayers: screenshot.players.length
+                }
+                const score = await this.gameMaster.attemptSubmit(word, constraints);
                 room.addEntry(person, word, score);
                 room.setNextPlayer();
                 return room.getScreenshot();
             } else {
-                return false;
+                throw new Error("It's not your turn yet...");
             }
         } else {
-
             throw new Error("Room doesn't exist");
         }
     }

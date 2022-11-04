@@ -11,33 +11,6 @@ const socket = io(WEBSERVER_PATH, {
     autoConnect: false,
 })
 
-function normalizeScore(score) {
-    return Math.round(score * 10) * 100;
-}
-
-async function getScore(word, history, pastWords) {
-    const numPastWords = pastWords.length;
-    var score = 2;
-
-    for(const pastWord of pastWords) {
-        try {
-            const res = await fetch(API_ENDPOINT + `get_distance=${word},${pastWord}`);
-            if (!res.ok) {
-                console.error(res.statusText);
-            }
-            const data = await res.json();
-            score = Math.min(score, 1 - data.distance);
-
-        } catch (err) {
-            console.error(err);
-        }
-    }
-    
-    const normalizedScore = history.length >= numPastWords ? normalizeScore(score) : 0;
-
-    return normalizedScore;
-}
-
 function getRelevantWords(history, numPastWords) {
     let pastWords = [];
 
@@ -163,14 +136,8 @@ class View {
                 alert("Please input a word");
                 return;
             }
-    
-            const curWord = input.value.toLowerCase().trim();
-    
-            // check if already existing
-            if (history.filter(({ word }) => word === curWord).length) {
-                alert("Word already used");
-                return;
-            }
+
+            const curWord = input.value.trim();
     
             e.target.reset();
             this.onSubmitWord(curWord);
@@ -228,18 +195,15 @@ class MainController {
     refreshGame(scores, history, players, curPlayer) {
         this.history = history;
         this.players = players
-        const numPastWords = this.players.length;
+        const numPastWords = Math.ceil(this.players.length * 1.5);
         const pastWords = getRelevantWords(this.history, numPastWords)
         this.view.generateGame(scores, history, players, curPlayer, pastWords);
     }
 
     submitWord(word) {
-        const numPastWords = this.players.length;
-        const pastWords = getRelevantWords(this.history, numPastWords)
-        getScore(word, this.history, pastWords)
-            .then(score => {
-                socket.emit('score', score, word, this.roomID);
-            })
+        socket.emit('submit-word', this.roomID, word, (err) => {
+            alert(err);
+        })
     }
 }
 
