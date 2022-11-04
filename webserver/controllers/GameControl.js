@@ -61,20 +61,26 @@ class GameControl {
         }
 
         // needed letters
-        if (opts.useLetters) {
-            const useLetters = [];
-            const numLetters = Math.ceil(Math.random() * 3);
-            Array(numLetters).fill(0).forEach(() => {
-                while (true) {
-                    const randLetter = getRandomLetter();
-                    if (!useLetters.includes(randLetter)) {
-                        useLetters.push(randLetter);
-                        break;
-                    }
-                }
-            });
-            res.useLetters = useLetters;
-        }
+
+        // I think I'll remove these for now
+        // since it constraints to players to
+        // think around the letters, not beyond
+        // them, which is the essence of the game
+
+        // if (opts.useLetters) {
+        //     const useLetters = [];
+        //     const numLetters = Math.ceil(Math.random() * 3);
+        //     Array(numLetters).fill(0).forEach(() => {
+        //         while (true) {
+        //             const randLetter = getRandomLetter();
+        //             if (!useLetters.includes(randLetter)) {
+        //                 useLetters.push(randLetter);
+        //                 break;
+        //             }
+        //         }
+        //     });
+        //     res.useLetters = useLetters;
+        // }
 
         // illegal letters
         if (opts.avoidLetters) {
@@ -137,8 +143,9 @@ class GameControl {
         }
 
         // check that the word avoids the dangerous words
-        const avoidWords = constraints.avoidLetters || [];
+        const avoidWords = constraints.avoidWords || [];
         for(const badWord of avoidWords) {
+            console.log(badWord);
             const rank = await this.getRank(badWord, word);
             if (rank <= 1000) {
                 throw new Error(`Word did not avoid dangerous word "${badWord}" enough`);

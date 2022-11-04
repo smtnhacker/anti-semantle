@@ -62,7 +62,7 @@ export function MainGame(pastWords, constraints) {
                     }
                 </div>
                 ${
-                    constraints.useLetters && 
+                    !!constraints.useLetters ? 
                     /* html */`
                         <h3>Use these letters</h3>
                         <div>
@@ -70,10 +70,10 @@ export function MainGame(pastWords, constraints) {
                                 return total + " " + letter
                             }, "")}
                         </div>
-                    `
+                    ` : ''
                 }
                 ${
-                    constraints.avoidLetters &&
+                    !!constraints.avoidLetters ?
                     /* html */`
                     <h3>Do not use these letters</h3>
                     <div>
@@ -81,10 +81,10 @@ export function MainGame(pastWords, constraints) {
                             return total + " " + letter
                         }, "")}
                     </div>
-                    `
+                    ` : ''
                 }
                 ${
-                    constraints.avoidWords &&
+                    !!constraints.avoidWords ?
                     /* html */`
                     <h3>Completely avoid these words</h3>
                     <div>
@@ -92,7 +92,7 @@ export function MainGame(pastWords, constraints) {
                             return total + "\n" + word
                         }, "")}
                     </div>
-                    `
+                    ` : ''
                 }
             </div>
             <form id="mainForm">
