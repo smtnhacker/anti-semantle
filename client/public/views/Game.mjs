@@ -109,7 +109,7 @@ export function MainGame(pastWords, constraints) {
 export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints) {
     return /* html */`
         <div id="main-game-container">
-            <h1 id="title">anti-semantle</h1>
+            <h1 id="title">anti-semantics</h1>
             <div id="game-interface">
                 ${Scores(scores, players, currentPlayer)}
                 ${MainGame(pastWords, constraints)}

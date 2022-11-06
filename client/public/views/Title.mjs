@@ -3,7 +3,7 @@ export default function Title() {
         <div id="main-menu-container">
             <h1 id="title">
                 ${
-                    Array.from("anti-semantle").reduce((total, letter, idx) => {
+                    Array.from("anti-semantics").reduce((total, letter, idx) => {
                         return total + /* html */`<span class="title-letter" data-phase="${Math.floor(Math.random() * 6)}" data-index="${idx}">${letter}</span>`
                     }, "")
                 }

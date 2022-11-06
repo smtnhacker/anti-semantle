@@ -20,6 +20,10 @@ footer {
     text-align: center;
 }
 
+#faq {
+    padding: 50px 24px 12px 24px;
+}
+
 .subtitle {
     color: var(--muted);
     margin-bottom: 24px;
