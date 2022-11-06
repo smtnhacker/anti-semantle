@@ -62,6 +62,14 @@ io.use(wrap(sessionMiddleware))
 
 const appControl = new AppControl(process.env.API);
 
+const sanitizeString = (s) => {
+    const clean = Array.from(s).filter(x => x.toLowerCase() !== x.toUpperCase() || x === ' ' || x === '-' || x === '_').reduce((t, c) => 
+        t + c, "");
+    const short = clean.slice(0, Math.min(clean.length, 20));
+    console.log(short);
+    return short;
+}
+
 io.on('connection', (socket) => {
     const req = socket.request
 
@@ -87,7 +95,7 @@ io.on('connection', (socket) => {
 
     socket.on('set-username', (name, cb) => {
         console.log('setting name of', req.session.name, "to", name);
-        req.session.name = name;
+        req.session.name = sanitizeString(name);
         req.session.save();
         cb();
     })
@@ -123,7 +131,7 @@ io.on('connection', (socket) => {
             ..._opts,
             useLetters: false,
         }
-        const roomID = appControl.createRoom(roomName, opts);
+        const roomID = appControl.createRoom(sanitizeString(roomName), opts);
         cb(roomID);
     })
 

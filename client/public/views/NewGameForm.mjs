@@ -1,4 +1,6 @@
 export default function NewGameForm() {
+    const patternErrorMessage = "Only alphanumeric characters, as well as spaces, dashes, and underscores are allowed."
+
     return /* html */`
         <form id="new-game-form">
             <h1>New Game</h1>
@@ -10,12 +12,22 @@ export default function NewGameForm() {
                     type="text" 
                     id="username" 
                     name="username" 
+                    pattern="[A-Za-z0-9 _-]+"
+                    maxlength="20"
+                    title="${patternErrorMessage}"
                     required 
                 />
             </div>
             <div class="form-group">
                 <label>Room Name</label>
-                <input type="text" id="roomname" name="roomname" required />
+                <input 
+                    type="text" 
+                    id="roomname" 
+                    name="roomname" 
+                    pattern="[A-Za-z0-9 _-]+"
+                    maxlength="20"
+                    title="${patternErrorMessage}"
+                    required />
             </div>
             <div id="room-settings">
                 <strong>Room Settings</strong>
