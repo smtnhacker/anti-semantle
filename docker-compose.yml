@@ -12,6 +12,7 @@ services:
   nginx:
     build: ./nginx
     ports:
+      - 1337
       - 5000:1337
     depends_on:
       - api
@@ -20,6 +21,11 @@ services:
     command: ["node", "index.js"]
     ports:
       - 8080:8080
+    environment:
+      - API=http://nginx:1337/api
+      - CLIENT=http://localhost:3000
+    depends_on:
+      - nginx
   client:
     build: 
       context: ./client

@@ -60,7 +60,7 @@ const io = new Server(httpServer, {
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next)
 io.use(wrap(sessionMiddleware))
 
-const appControl = new AppControl();
+const appControl = new AppControl(process.env.API);
 
 io.on('connection', (socket) => {
     const req = socket.request

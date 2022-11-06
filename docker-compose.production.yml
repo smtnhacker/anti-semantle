@@ -20,6 +20,9 @@ services:
     command: ["node", "index.js"]
     ports:
       - 8080:8080
+    environment:
+      - API=https://anti-semantle-api.onrender.com
+      - CLIENT=https://anti-semantle.onrender.com
   client:
     build: 
       context: ./client
