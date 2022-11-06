@@ -95,7 +95,7 @@ export function MainGame(pastWords, constraints) {
                     ` : ''
                 }
             </div>
-            <form id="mainForm">
+            <form id="mainForm" autocomplete="off">
                 <div class="form-group">
                     <input id="mainInput" type="text" placeholder="Enter the least semantically-relevant word" required />
                     <input class="btn" type="submit" value="Submit" />
