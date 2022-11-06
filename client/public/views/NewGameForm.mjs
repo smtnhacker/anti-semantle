@@ -51,7 +51,8 @@ export default function NewGameForm() {
                 </div>
             </div>
             <div class="form-group-center">
-                <input type="submit" value="Create Game" class="btn" />
+                <button id="backBtn" class="btn">Back</button>
+                <input type="submit" value="Create Game" class="btn btn-primary" />
             </div>
         </form>
     `

@@ -25,6 +25,7 @@ export default function JoinLobby(publicLobbies) {
                         required />
                 </div>
                 <div class="form-group-center">
+                    <button id="backBtn" class="btn">Back</button>
                     <input class="btn btn-wide" type="submit" value="Join" />
                 </div>
             </form>

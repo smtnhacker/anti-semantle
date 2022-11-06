@@ -20,7 +20,7 @@ class View {
         this.titleFactors = 1
     }
 
-    generateMainMenu(publicRooms) {
+    generateMainMenu() {
         const container = document.createElement('div');
         container.innerHTML = Title();
         this.root.replaceChildren(container);
@@ -29,7 +29,7 @@ class View {
         createBtn.onclick = () => this.generateNewGameMenu();
 
         const joinBtn = document.getElementById('joinBtn');
-        joinBtn.onclick = () => this.generateJoinLobby(publicRooms);
+        joinBtn.onclick = () => this.onGenerateLobbies();
 
         /* ================================ */
         /* === Add chaotic title effect === */
@@ -99,6 +99,11 @@ class View {
             this.onNewRoom(name, roomName, opts);
         }
 
+        const backBtn = document.getElementById('backBtn');
+        backBtn.onclick = (e) => {
+            e.preventDefault();
+            this.onGoToMenu();
+        }
 
     }
 
@@ -123,6 +128,12 @@ class View {
             const name = document.getElementById('username').value;
             const roomID = document.getElementById('roomID').value;
             this.onJoinRoom(roomID, name);
+        }
+
+        const backBtn = document.getElementById('backBtn');
+        backBtn.onclick = (e) => {
+            e.preventDefault();
+            this.onGoToMenu();
         }
     }
 
@@ -165,13 +176,15 @@ class MainController {
         this.view.onStartGame = () => this.startGame();
         this.view.onSubmitWord = (word) =>  this.submitWord(word);
         this.view.onPass = () => this.pass();
-
+        this.view.onGoToMenu = () => this.view.generateMainMenu();
+        
         socket.timeout(3000).emit('get-public-rooms', (err, publicRooms) => {
             if (err) {
-                this.view.generateMainForm([]);
+                this.view.onGenerateLobbies = () => this.view.generateJoinLobby([])
             } else {
-                this.view.generateMainMenu(publicRooms);
+                this.view.onGenerateLobbies = () => this.view.generateJoinLobby(publicRooms)
             }
+            this.view.generateMainMenu();
         })
     }
 
