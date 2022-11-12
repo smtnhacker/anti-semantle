@@ -84,7 +84,7 @@ class AppControl {
                 const { score, distances } = await this.gameMaster.attemptSubmit(word, constraints);
                 room.addEntry(person, word, score);
                 await room.setNextPlayer();
-                return { ...room.getScreenshot(), flash: distances };
+                return { ...room.getScreenshot(), flash: distances, flashScore: score };
             } else {
                 throw new Error("It's not your turn yet...");
             }

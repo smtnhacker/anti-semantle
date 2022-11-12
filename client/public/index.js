@@ -16,7 +16,7 @@ class View {
 
     constructor() {
         this.root = document.getElementById('app');
-
+        
         this.prevTitleInterval = {}
         this.titleFactors = 1
     }
@@ -64,8 +64,6 @@ class View {
 
             this.titleFactors = factor
         }
-
-    
 
     }
 
@@ -191,6 +189,9 @@ class MainController {
         this.view.onSubmitWord = (word) =>  this.submitWord(word);
         this.view.onPass = () => this.pass();
         this.view.onGoToMenu = () => this.view.generateMainMenu();
+
+        // effects
+        this.jsConfetti = new JSConfetti();
         
         this.refreshSite()
     }
@@ -242,6 +243,13 @@ class MainController {
         }
 
         const flash = screenshot.flash;
+        const flashScore = screenshot.flashScore;
+
+        if (flashScore >= 1300) {
+            this.jsConfetti.addConfetti()
+                .then(() => this.jsConfetti.clearCanvas())
+        }
+
         this.history = history;
         this.players = players
         this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash, roundsLeft);
