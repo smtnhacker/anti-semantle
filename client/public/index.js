@@ -248,6 +248,9 @@ class MainController {
         if (flashScore >= 1300) {
             this.jsConfetti.addConfetti()
                 .then(() => this.jsConfetti.clearCanvas())
+        } else if (flashScore < 750) {
+            this.view.root.classList.add('shake');
+            setTimeout(() => this.view.root.classList.remove('shake'), 1000);
         }
 
         this.history = history;

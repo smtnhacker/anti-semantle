@@ -2,4 +2,4 @@
 2. (DONE) Add end game condition (such as number of rounds) and a game over screen
 3. Fix handling on low latency environment
 4. Increase number of seeded words to the required number of previous words
-5. Add effects on low/high score guesses
+5. (DONE) Add effects on low/high score guesses
