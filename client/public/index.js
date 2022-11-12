@@ -137,9 +137,9 @@ class View {
         }
     }
 
-    generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints) {
+    generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash) {
         const container = document.createElement('div');
-        container.innerHTML = Game(roomName, scores, history, players, curPlayer, pastWords, constraints);
+        container.innerHTML = Game(roomName, scores, history, players, curPlayer, pastWords, constraints, flash);
         this.root.replaceChildren(container);
 
         // apply event handlers
@@ -216,10 +216,12 @@ class MainController {
         socket.emit('start-room', this.roomID);
     }
 
-    refreshGame(roomName, scores, history, pastWords, players, curPlayer, constraints) {
+    refreshGame(screenshot) {
+        const { roomName, scores, history, pastWords, players, curPlayer, constraints } = screenshot;
+        const flash = screenshot.flash;
         this.history = history;
         this.players = players
-        this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints);
+        this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash);
     }
 
     submitWord(word) {
@@ -244,6 +246,5 @@ window.onload = async () => {
     );
 
     socket.on('joined-room', (players, roomName) => controller.refreshLobby(players, roomName))
-    socket.on('update-game', (roomName, scores, history, pastWords, players, curPlayer, constraints) => 
-        controller.refreshGame(roomName, scores, history, pastWords, players, curPlayer, constraints))
+    socket.on('update-game', (screenshot) => controller.refreshGame(screenshot))
 }

@@ -20,10 +20,10 @@ class GameControl {
             const response = await axios.post(`${this.api}/get_distances=${word}`, {
                 words: wordList
             });
-            return response.data.distances;
+            return response.data.distances.map((distance, i) => ({ word: wordList[i], distance: distance }));
         } catch(err) {
             console.log(err);
-            return Array(l).fill(0);
+            return Array(l).fill(0).map((_, i) => ({ word: wordList[i], distance: 0 }));
         }
     }
 
@@ -159,7 +159,6 @@ class GameControl {
         // check that the word avoids the dangerous words
         const avoidWords = constraints.avoidWords || [];
         for(const badWord of avoidWords) {
-            console.log(badWord);
             const rank = await this.getRank(badWord, word);
             if (rank <= 1000) {
                 throw new Error(`Word did not avoid dangerous word "${badWord}" enough`);
@@ -171,9 +170,9 @@ class GameControl {
         const wordList = this.getRelevantWords(usedWords, numPlayers);
         const distances = await this.getDistances(word, wordList);
 
-        const score = this.getScore(distances, {});
+        const score = this.getScore(distances.map(({ distance }) => distance), {});
 
-        return score;
+        return { score: score, distances: distances };
 
     }
 }

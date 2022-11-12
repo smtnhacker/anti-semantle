@@ -276,10 +276,32 @@ code {
     flex-grow: 1;
 }
 
-#scores-container {
+#left {
     flex-grow: 1;
-    height: 100%;
     min-width: 250px;
+}
+
+#scores-container {
+    height: 50%;
+    width: 100%;
+}
+
+#flash-container {
+    height: 50%;
+}
+
+#flash-description {
+    display: flex;
+    align-items: baseline;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+#flash-color {
+    margin: 0px 6px;
+    height: 1rem;
+    width: 200px;
+    background: linear-gradient(90deg, red, blue);
 }
 
 #history-container {

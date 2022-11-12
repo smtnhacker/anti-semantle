@@ -106,12 +106,51 @@ export function MainGame(pastWords, constraints) {
     `
 }
 
-export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints) {
+export function getSubmissionRating(distance) {
+    const red = 255 * (1 - distance);
+    const blue = 255 * distance;
+
+    let text = "";
+
+    if (distance < 0.15) text = "You can surely win at Semantle..."
+    else if (distance < 0.3) text = "It must be semantically FAR...";
+    else if (distance < 0.5) text = "Broaden your horizon even further.";
+    else if (distance < 0.75) text = "You're getting the hang of it!";
+    else if (distance < 0.9) text = "That's some creative thinking!";
+    else text = "Is that even a word?!" 
+
+    return `<span style="color: rgb(${red}, 0, ${blue})">${text}</span>`;
+}
+
+export function Flash(flash) {
+    return /* html */`
+        <div id="flash-container">
+            <h3>Submission</h3>
+            <div id="flash-description">
+                Near <div id="flash-color"></div> Far
+            </div>
+            <div id="flash-list">
+            ${
+                flash.reduce((total, {word, distance}) => {
+                    return total + "\n" + /* html */`
+                        <div class="flash-item">${word} - ${getSubmissionRating(distance)}</div>
+                    `
+                }, "")
+            }
+            </div>
+        </div>
+    `
+}
+
+export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints, flash) {
     return /* html */`
         <div id="main-game-container">
             <h1 id="title">anti-semantics</h1>
             <div id="game-interface">
-                ${Scores(scores, players, currentPlayer)}
+                <div id="left">
+                    ${Scores(scores, players, currentPlayer)}
+                    ${flash ? Flash(flash) : ''}
+                </div>
                 ${MainGame(pastWords, constraints)}
                 ${History(history)}
             </div>

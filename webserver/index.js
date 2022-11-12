@@ -107,7 +107,8 @@ io.on('connection', (socket) => {
                 id: req.sessionID,
                 name: req.session.name
             }
-            const { roomName, state, scores, history, players, curPlayer, pastWords, constraints } = appControl.joinRoom(roomID, player);
+            const roomScreenshot = appControl.joinRoom(roomID, player);
+            const { players, state, roomName } = roomScreenshot;
             socket.join(roomID);
             req.session.room = roomID;
             req.session.save();
@@ -115,7 +116,7 @@ io.on('connection', (socket) => {
             if (state === Room.STATES.IN_LOBBY) {
                 io.to(roomID).emit('joined-room', players, roomName);
             } else if (state === Room.STATES.IN_GAME) {
-                io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
+                io.to(roomID).emit('update-game', roomScreenshot);
             }
 
             cb();
@@ -143,8 +144,8 @@ io.on('connection', (socket) => {
     socket.on('start-room', async (roomID) => {
         try {
             await appControl.startRoom(roomID);
-            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = appControl.peekRoom(roomID);
-            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
+            const roomScreenshot = appControl.peekRoom(roomID);
+            io.to(roomID).emit('update-game', roomScreenshot);
         } catch (err) {
             console.error(err);
         }
@@ -156,9 +157,8 @@ io.on('connection', (socket) => {
             name: req.session.name
         };
         try {
-            const res = await appControl.attemptSubmit(roomID, player, word);
-            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = res;
-            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
+            const roomScreenshot = await appControl.attemptSubmit(roomID, player, word);
+            io.to(roomID).emit('update-game', roomScreenshot);
         } catch (err) {
             console.log(err);
             cb(err.message);
@@ -171,9 +171,8 @@ io.on('connection', (socket) => {
             name: req.session.name
         };
         try {
-            const res = await appControl.pass(roomID, player);
-            const { roomName, scores, history, players, curPlayer, pastWords, constraints } = res;
-            io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
+            const roomScreenshot = await appControl.pass(roomID, player);
+            io.to(roomID).emit('update-game', roomScreenshot);
         } catch (err) {
             console.log(err);
         }
@@ -187,11 +186,12 @@ io.on('connection', (socket) => {
         };
         try {
             if (roomID) {
-                const { roomName, state, players, curPlayer, scores, history, pastWords, constraints } = appControl.leaveRoom(roomID, player);
+                const roomScreenshot = appControl.leaveRoom(roomID, player);
+                const { players, state } = roomScreenshot;
                 if (state === Room.STATES.IN_LOBBY) {
                     io.to(roomID).emit('joined-room', players);
                 } else if (state === Room.STATES.IN_GAME) {
-                    io.to(roomID).emit('update-game', roomName, scores, history, pastWords, players, curPlayer, constraints);
+                    io.to(roomID).emit('update-game', roomScreenshot);
                 }
                 socket.leave(roomID);
                 delete req.session.room;
