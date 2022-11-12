@@ -142,10 +142,19 @@ export function Flash(flash) {
     `
 }
 
-export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints, flash) {
+export function Rounds(roundsLeft) {
+    if (roundsLeft === null) {
+        return ''
+    } else {
+        return `<h3>Rounds Left: ${roundsLeft}</h3>`
+    }
+}
+
+export default function Game(roomName, scores, history, players, currentPlayer, pastWords, constraints, flash, roundsLeft) {
     return /* html */`
         <div id="main-game-container">
             <h1 id="title">anti-semantics</h1>
+            ${Rounds(roundsLeft)}
             <div id="game-interface">
                 <div id="left">
                     ${Scores(scores, players, currentPlayer)}

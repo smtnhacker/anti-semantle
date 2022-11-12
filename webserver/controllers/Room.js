@@ -70,6 +70,7 @@ class Room {
         this.id = id
         this.name = name
 
+        this.numRounds = opts.numRounds
         this.isPublic = opts.isPublic
         this.constraintsOpts = {
             useLetters: opts.useLetters,
@@ -80,10 +81,12 @@ class Room {
 
         this.state = Room.STATES.IN_LOBBY
         this.curPlayer = -1
+        this.roundsLeft = this.numRounds ? this.numRounds : null
 
         this.members = []
         this.ScoreController = new ScoreController()
         this.HistoryController = new HistoryController()
+
     }
 
     add(person) {
@@ -138,6 +141,8 @@ class Room {
     }
 
     addEntry(person, word, score) {
+        if (this.state === Room.STATES.ENDED) return;
+
         this.ScoreController.increment(person.id, score);
         this.HistoryController.addEntry(person.name, word, score);
     }
@@ -150,12 +155,14 @@ class Room {
         return {
             roomName: this.name,
             state: this.state,
+            STATES: Room.STATES,
             curPlayer: this.peekNextPlayer(),
             players: this.getMembers(),
             scores: this.ScoreController.generateScoreBoard(),
             history: this.HistoryController.generateHistory(),
             pastWords: this.gameMaster.getRelevantWords(this.HistoryController.generateHistory(), this.members.length),
-            constraints: this.constraints
+            constraints: this.constraints,
+            roundsLeft: this.roundsLeft
         }
     }
 
@@ -169,8 +176,30 @@ class Room {
     }
 
     async setNextPlayer() {
+        if (this.state === Room.STATES.ENDED) return;
+
+        const prevPlayer = this.peekNextPlayer();
+        const prevPlayerId = this.members.findIndex(p => p.id === prevPlayer.id);
+        
         this.curPlayer++;
         this.constraints = await this.gameMaster.generateConstraints(this.constraintsOpts)
+
+        const curPlayer = this.peekNextPlayer();
+        const curPlayerId = this.members.findIndex(p => p.id === curPlayer.id);
+        if (curPlayerId <= prevPlayerId) {
+            this.endTurn();
+        }
+    }
+
+    endTurn() {
+        if (!this.numRounds || this.state === Room.STATES.ENDED) {
+            return;
+        }
+
+        this.roundsLeft--;
+        if (this.roundsLeft <= 0) {
+            this.state = Room.STATES.ENDED;
+        }
     }
 }
 

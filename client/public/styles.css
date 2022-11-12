@@ -198,6 +198,11 @@ footer {
     text-align: center;
 }
 
+#rounds {
+    margin-right: 6px;
+    width: 6ch;
+}
+
 /* Join Lobby */
 
 #join-lobby-container {
@@ -336,4 +341,19 @@ code {
 #mainInput {
     flex-grow: 1;
     margin: 6px;
+}
+
+/* Game Over */
+
+#game-over-container {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.ranking-item {
+    padding: 6px;
+    margin-bottom: 6px;
 }

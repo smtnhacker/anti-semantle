@@ -4,6 +4,7 @@ import {
     JoinLobby,
     Lobby,
     Game,
+    GameOver
  } from "./views/index.mjs";
 
 const socket = io(WEBSERVER_PATH, {
@@ -86,11 +87,13 @@ class View {
             e.preventDefault();
             const name = document.getElementById('username').value;
             const roomName = roomname.value;
+            const numRounds = parseInt(document.getElementById('rounds').value);
             const isPublic = document.getElementById('public').checked;
             const avoidLetters = document.getElementById('avoidLetters').checked;
             const avoidWords = document.getElementById('avoidWords').checked;
 
             const opts = {
+                numRounds: numRounds,
                 isPublic: isPublic,
                 avoidLetters: avoidLetters,
                 avoidWords: avoidWords
@@ -137,9 +140,9 @@ class View {
         }
     }
 
-    generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash) {
+    generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash, roundsLeft) {
         const container = document.createElement('div');
-        container.innerHTML = Game(roomName, scores, history, players, curPlayer, pastWords, constraints, flash);
+        container.innerHTML = Game(roomName, scores, history, players, curPlayer, pastWords, constraints, flash, roundsLeft);
         this.root.replaceChildren(container);
 
         // apply event handlers
@@ -164,6 +167,17 @@ class View {
             this.onPass();
         }
     }   
+
+    generateEndscreen(roomName, scores) {
+        const container = document.createElement('div');
+        container.innerHTML = GameOver(roomName, scores)
+        this.root.replaceChildren(container);
+
+        // attach event handlers
+        const goBackBtn = document.getElementById('goBackBtn');
+
+        goBackBtn.onclick = () => this.onGoToMenu();
+    }
 }
 
 class MainController {
@@ -178,6 +192,10 @@ class MainController {
         this.view.onPass = () => this.pass();
         this.view.onGoToMenu = () => this.view.generateMainMenu();
         
+        this.refreshSite()
+    }
+
+    refreshSite() {
         socket.timeout(3000).emit('get-public-rooms', (err, publicRooms) => {
             if (err) {
                 this.view.onGenerateLobbies = () => this.view.generateJoinLobby([])
@@ -217,11 +235,16 @@ class MainController {
     }
 
     refreshGame(screenshot) {
-        const { roomName, scores, history, pastWords, players, curPlayer, constraints } = screenshot;
+        const { roomName, scores, history, pastWords, players, curPlayer, constraints, state, roundsLeft } = screenshot;
+
+        if (state === screenshot.STATES.ENDED) {
+            return this.view.generateEndscreen(roomName, scores);
+        }
+
         const flash = screenshot.flash;
         this.history = history;
         this.players = players
-        this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash);
+        this.view.generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash, roundsLeft);
     }
 
     submitWord(word) {

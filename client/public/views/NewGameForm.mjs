@@ -33,6 +33,11 @@ export default function NewGameForm() {
                 <strong>Room Settings</strong>
                 <div class="form-group">
                     <div class="checkbox-group">
+                        <label># of Rounds</label>
+                        <input id="rounds" type="number" min="0" max="9999" value="0" />
+                        <div class="subtitle">Setting it to 0 will mean no limit.</div>
+                    </div>
+                    <div class="checkbox-group">
                         <label for="public">Public</label>
                         <input type="checkbox" id="public" name="public" />
                         <div class="subtitle">This will make the room appear in the public lobbies.</div>
