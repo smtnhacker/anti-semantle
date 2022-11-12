@@ -130,7 +130,7 @@ class Room {
             this.constraints = await this.gameMaster.generateConstraints(this.constraintsOpts)
 
             // add seed words
-            for(let i=0; i<this.members.length; i++) {
+            for(let i=0; i < Math.ceil(this.members.length * 1.5); i++) {
                 const randWord = await this.gameMaster.getRandomWord();
                 this.HistoryController.addEntry('Seed', randWord, 0);
             }
