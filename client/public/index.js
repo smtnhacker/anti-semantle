@@ -115,6 +115,11 @@ class View {
 
         const startBtn = document.getElementById('startBtn');
         startBtn.onclick = () => this.onStartGame();
+
+        const codeDiv = document.getElementById('lobby-code');
+        codeDiv.onmousedown = (e) => {
+            navigator.clipboard.writeText(roomID).then(() => alert("Copied to clipboard"));
+        }
     }
 
     generateJoinLobby(publicRooms) {
@@ -136,6 +141,13 @@ class View {
             e.preventDefault();
             this.onGoToMenu();
         }
+
+        const codeDivs = Array.from(document.getElementsByClassName("has-code"));
+        codeDivs.forEach(codeDiv => {
+            codeDiv.onmousedown = (e) => {
+                navigator.clipboard.writeText(codeDiv.dataset.value).then(() => alert("Copied to clipboard"));
+            }
+        })
     }
 
     generateGame(roomName, scores, history, players, curPlayer, pastWords, constraints, flash, roundsLeft) {

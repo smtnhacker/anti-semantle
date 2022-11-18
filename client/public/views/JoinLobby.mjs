@@ -1,5 +1,6 @@
 export default function JoinLobby(publicLobbies) {
     const patternErrorMessage = "Only alphanumeric characters, as well as spaces, dashes, and underscores are allowed."
+    const clipboard = feather.icons.clipboard.toSvg({ width: "1.5rem", height: "1.5rem" })
 
     return /* html */`
         <div id="join-lobby-container">
@@ -35,8 +36,8 @@ export default function JoinLobby(publicLobbies) {
                     ${
                         publicLobbies.reduce((total, roomID) => {
                             return total + "\n" + /* html */`
-                                <div class="public-list-item">
-                                    <code>${roomID}</code>
+                                <div class="public-list-item has-code" data-value="${roomID}">
+                                    <code>${roomID}${clipboard}</code>
                                 </div>
                             `
                         }, "")

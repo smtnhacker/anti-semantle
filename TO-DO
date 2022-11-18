@@ -4,4 +4,8 @@
 4. (DONE) Increase number of seeded words to the required number of previous words
 5. (DONE) Add effects on low/high score guesses
 6. Delete unused rooms
-7. Add copy-on-click to the lobby code
+7. (DONE) Add copy-on-click to the lobby code
+8. Add colors to feedback and tweak good guess criteria
+9. Record total game time
+10. Add accounts
+11. Save words used so far for an account
