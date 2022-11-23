@@ -87,6 +87,8 @@ class Room {
         this.ScoreController = new ScoreController()
         this.HistoryController = new HistoryController()
 
+        this.start = new Date();
+
     }
 
     add(person) {
@@ -123,6 +125,8 @@ class Room {
 
     async startGame() {
         if (this.state === Room.STATES.IN_LOBBY) {
+            this.start = (new Date());
+
             this.state = Room.STATES.IN_GAME;
             this.curPlayer = -1;
 
@@ -162,7 +166,8 @@ class Room {
             history: this.HistoryController.generateHistory(),
             pastWords: this.gameMaster.getRelevantWords(this.HistoryController.generateHistory(), this.members.length),
             constraints: this.constraints,
-            roundsLeft: this.roundsLeft
+            roundsLeft: this.roundsLeft,
+            elapsed: (new Date()) - this.start
         }
     }
 

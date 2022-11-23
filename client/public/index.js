@@ -178,9 +178,9 @@ class View {
         }
     }   
 
-    generateEndscreen(roomName, scores) {
+    generateEndscreen(roomName, scores, elapsed) {
         const container = document.createElement('div');
-        container.innerHTML = GameOver(roomName, scores)
+        container.innerHTML = GameOver(roomName, scores, elapsed);
         this.root.replaceChildren(container);
 
         // attach event handlers
@@ -248,10 +248,20 @@ class MainController {
     }
 
     refreshGame(screenshot) {
-        const { roomName, scores, history, pastWords, players, curPlayer, constraints, state, roundsLeft } = screenshot;
+        const { 
+            roomName, 
+            scores, 
+            history, 
+            pastWords, 
+            players, 
+            curPlayer, 
+            constraints, 
+            state, 
+            roundsLeft, 
+            elapsed } = screenshot;
 
         if (state === screenshot.STATES.ENDED) {
-            return this.view.generateEndscreen(roomName, scores);
+            return this.view.generateEndscreen(roomName, scores, elapsed);
         }
 
         const flash = screenshot.flash;
